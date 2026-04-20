@@ -1,25 +1,26 @@
 # Requests y backlog inicial
 
 ## Requests del calendario actual
-1. Crear repositorio base y convención de ramas.
+1. Crear repositorio base, convencion de ramas y estructura de trabajo en Git.
 2. Configurar tablero Jira con columnas `Backlog`, `To Do`, `In Progress`, `Review`, `Done`.
-3. Capacitar al equipo en Node.js, React, Git Flow básico y uso de Jira.
-4. Levantar inventario fotográfico y clasificar recursos por categoría de plato.
+3. Capacitar al equipo en Git, Jira y flujo colaborativo basico.
+4. Levantar inventario fotografico y clasificar recursos por categoria de plato.
 5. Definir mockups del flujo comensal -> caja -> cocina -> mesera.
-6. Preparar entorno de despliegue en Render.
-7. Validar con cliente la lógica del flujo de caja y estados del pedido.
+6. Organizar backlog funcional y prioridades del MVP.
+7. Validar con cliente la logica del flujo de caja y estados del pedido.
 
-## Épicas sugeridas
+## Epicas sugeridas
+- Gestion de requests y backlog.
 - Experiencia del comensal por QR.
-- Operación de caja y validación de ticket.
+- Operacion de caja y validacion de ticket.
 - Tablero de cocina en tiempo real.
 - Vista de mesera y notificaciones de plato listo.
-- Administración de menú e inventario.
-- Infraestructura, despliegue y calidad.
+- Administracion de menu e inventario.
 
 ## Historias iniciales
-- Como comensal, quiero escanear un QR para ver el menú desde mi teléfono.
-- Como dueña en caja, quiero visualizar pedidos entrantes para confirmar el cobro físico.
-- Como cocinero, quiero ver la cola de producción con estados actualizados en tiempo real.
-- Como mesera, quiero saber cuándo un plato está listo sin preguntar en cocina.
+- Como equipo, queremos registrar requests en Git y Jira para trabajar con trazabilidad.
+- Como comensal, quiero escanear un QR para ver el menu desde mi telefono.
+- Como duena en caja, quiero visualizar pedidos entrantes para confirmar el cobro fisico.
+- Como cocinero, quiero ver la cola de produccion con estados actualizados en tiempo real.
+- Como mesera, quiero saber cuando un plato esta listo sin preguntar en cocina.
 - Como administradora, quiero activar o desactivar platos para evitar vender agotados.

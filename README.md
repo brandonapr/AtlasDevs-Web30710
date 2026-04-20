@@ -3,7 +3,7 @@ Repositorio dedicado a la organizacion, versionamiento y desarrollo del proyecto
 
 ## Base actual
 - Documentacion formal del acta en `docs/actas`.
-- Planificacion inicial y automatizacion en `docs/planificacion`.
+- Planificacion inicial y automatizacion de requests en `docs/planificacion`.
 - Insumo para carga de tareas en Jira en `docs/jira`.
 - Estructura base de web app en `apps/web` y `apps/api`.
 
@@ -15,6 +15,5 @@ Repositorio dedicado a la organizacion, versionamiento y desarrollo del proyecto
 
 ## Flujo de colaboracion
 - Jira para backlog y seguimiento.
-- Git para ramas, revision y merge.
-- GitHub Actions para validacion tecnica.
-- Render para ambiente de pruebas.
+- Git para ramas, revision, merge y trazabilidad del trabajo.
+- Plantillas de issues y pull requests para ordenar requests y entregables.
