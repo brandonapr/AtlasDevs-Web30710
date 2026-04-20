@@ -1,14 +1,15 @@
 # Colaboradores y asignaciones
 
 ## Colaboradores funcionales identificados
-- Brandon Pazmino: SCRUM Master
-- Daniel Palacios: Product Owner
+- Brandon Pazmino (@brandonapr): SCRUM Master
+- Daniel Palacios (@DanielPalacios98): Product Owner
 - Brithany Lopez: Team Development
 - Daniela Freire: Team Development
 - Jhoana Encalada: Cliente y validacion de negocio
 
 ## Pendiente para GitHub
 Para agregarlos como colaboradores reales del repositorio en GitHub hacen falta sus usuarios de GitHub o sus correos asociados a GitHub. Sin ese dato no se puede invitarlos desde el repositorio.
+- @DanielPalacios98 (danielpalaciosgall06@gmail.com) — listo para invitar como colaborador.
 
 ## Asignaciones recomendadas por actor y rol
 - Brandon Pazmino
