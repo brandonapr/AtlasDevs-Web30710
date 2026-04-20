@@ -1,0 +1,12 @@
+Summary,Issue Type,Description,Assignee,Due Date,Labels
+Capacitacion tecnica en Node.js y React,Tarea,Capacitacion interna para nivelar al equipo en Node.js React Git y Jira,Brithany / Daniela,25/04/2026,formacion sprint-0
+Levantamiento de inventario fotografico,Tarea,Recolectar fotografias y clasificar platos del negocio para mockups y catalogo inicial,Brandon Pazmiño,22/04/2026,discovery contenido
+Configuracion de despliegue en Render,Tarea,Preparar entorno de pruebas para la web app y validar despliegue inicial,Daniel Palacios,28/04/2026,devops render
+Entrega del primer prototipo no funcional,Tarea,Presentar mockups y flujo propuesto del sistema antes de implementacion funcional,Team Development,02/05/2026,mockups ux
+Validacion de flujo de caja,Tarea,Revisar con cliente el proceso caja cocina y confirmacion de cobro fisico,Product Owner,05/05/2026,validacion negocio
+Configuracion del repositorio Git,Tarea,Crear estrategia de ramas convenciones de commits y repositorio base del proyecto,Brandon Pazmiño / Team Development,23/04/2026,git governance
+Creacion del tablero Jira,Tarea,Configurar backlog inicial columnas del flujo y sprint 1 del proyecto,Daniel Palacios,23/04/2026,jira scrum
+RF-01 Visualizacion Menu QR,Historia,Acceso responsive al menu para comensales mediante codigo QR,Product Owner,30/04/2026,rf mvp
+RF-02 Modulo Comandos RT,Historia,Sincronizacion asincrona entre perfiles de usuario con estados del pedido en tiempo real,SCRUM Master,07/05/2026,rf tiempo-real
+RF-03 Gestion CRUD de Menu,Historia,Panel administrativo para actualizar productos y disponibilidad,Administrador,09/05/2026,rf admin
+RF-04 Validacion de Ticket,Historia,Modulo de caja para cierre de pedidos luego del cobro fisico,Product Owner,09/05/2026,rf caja
