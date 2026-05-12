@@ -1,0 +1,16 @@
+Summary,Issue Type,Description,Assignee,Due Date,Labels,Sprint,Story Points,Priority
+EDV-EPIC-01 Menu digital y pedido inicial,Epic,Epica para agrupar RF01 Ver Menu y RF02 Registrar Pedido del MVP inicial,Daniel Palacios,12/05/2026,epic mvp scrum,Todos,,High
+EDV-001 RF01 Ver menu digital,Story,Como comensal quiero ver una carta digital responsive con productos precios imagenes categorias y disponibilidad para elegir rapidamente mi pedido,Brithany Lopez,04/05/2026,rf01 menu frontend,Sprint 2,8,High
+EDV-002 Organizar imagenes de platos,Task,Clasificar fotos de platos y relacionarlas con codigos de producto para alimentar el menu visual,Brithany Lopez,30/04/2026,assets menu,Sprint 2,3,High
+EDV-003 Crear JSON de productos,Task,Crear estructura de productos con id nombre categoria descripcion precio imagen disponibilidad destacado y etiquetas,Daniela Freire,01/05/2026,data json menu,Sprint 2,5,High
+EDV-004 Implementar busqueda y filtros,Task,Permitir busqueda por nombre codigo categoria descripcion y filtros por categoria en el menu publico,Daniela Freire,03/05/2026,rf01 search filters,Sprint 2,3,Medium
+EDV-005 RF02 Registrar pedido,Story,Como comensal quiero seleccionar productos cantidades mesa y observacion para registrar una orden digital con estado pendiente,Daniela Freire,12/05/2026,rf02 pedido cart,Sprint 3,8,High
+EDV-006 Crear carrito y totales,Task,Implementar Mi pedido con agregar quitar aumentar disminuir subtotal y total general,Daniela Freire,08/05/2026,cart js,Sprint 3,5,High
+EDV-007 Disenar panel Mi pedido,Task,Ajustar visualmente el panel de pedido para escritorio y movil manteniendo identidad visual del restaurante,Brithany Lopez,09/05/2026,ui responsive cart,Sprint 3,3,High
+EDV-008 Preparar Supabase schema y seed,Task,Crear tablas productos pedidos pedido_items perfiles politicas RLS y seed inicial compatible con JSON,Daniela Freire,10/05/2026,supabase database,Sprint 3,5,Medium
+EDV-009 Desplegar menu en Render,Task,Configurar build estatico publicar menu online y preparar rutas publicas y privadas del prototipo,Brandon Pazmino,11/05/2026,render deploy devops,Sprint 3,3,Medium
+EDV-010 Validar incremento RF01 RF02,Task,Probar menu pedido carrito render y documentar cumplimiento de criterios de aceptacion del primer corte,Daniel Palacios,12/05/2026,qa acceptance po,Sprint 3,3,High
+EDV-011 Levantamiento y validacion inicial,Task,Revisar flujo operativo del restaurante actores problema y necesidades de automatizacion con cliente,Daniel Palacios,20/04/2026,discovery cliente,Sprint 0,3,High
+EDV-012 Definir casos de uso y actores,Task,Documentar actores comensal caja cocinero mesera administradora y sus casos de uso principales,Brandon Pazmino,26/04/2026,uml requisitos,Sprint 1,5,High
+EDV-013 Refinar requisitos RF y RNF,Task,Priorizar RF01 RF02 y documentar RNF de rendimiento seguridad portabilidad y mantenimiento,Daniel Palacios,27/04/2026,requisitos backlog,Sprint 1,5,High
+EDV-014 Evidencias y control de version,Task,Registrar capturas commits rama de trabajo despliegue y evidencias del avance para el informe,Brandon Pazmino,12/05/2026,evidencias git cmmi,Sprint 3,3,Medium
