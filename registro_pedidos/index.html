@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>RF02 - Registro de Pedidos</title>
+    <link rel="stylesheet" href="estilos/style.css">
+</head>
+<body>
+
+    <div class="contenedor">
+
+        <h1>Registro de Pedidos</h1>
+        <p class="descripcion">
+            Módulo RF02 para registrar pedidos del restaurante Ensaladas del Valle.
+        </p>
+
+        <form id="formPedido">
+
+            <label for="mesa">Mesa:</label>
+            <select id="mesa" required>
+                <option value="">Seleccione una mesa</option>
+                <option value="Mesa 1">Mesa 1</option>
+                <option value="Mesa 2">Mesa 2</option>
+                <option value="Mesa 3">Mesa 3</option>
+                <option value="Mesa 4">Mesa 4</option>
+                <option value="Mesa 5">Mesa 5</option>
+            </select>
+
+            <label for="categoria">Categoría:</label>
+            <select id="categoria" onchange="cargarProductos()" required>
+                <option value="">Seleccione una categoría</option>
+                <option value="bebidas">Bebidas</option>
+                <option value="desayunos">Desayunos</option>
+                <option value="snacks">Snacks</option>
+                <option value="postres">Postres</option>
+            </select>
+
+            <label for="producto">Producto:</label>
+            <select id="producto" required>
+                <option value="">Primero seleccione una categoría</option>
+            </select>
+            <label for="cantidad">Cantidad:</label>
+            <input type="number" id="cantidad" min="1" value="1" required>
+
+            <button type="button" onclick="agregarProducto()">Agregar producto</button>
+
+        </form>
+
+        <h2>Pedido actual</h2>
+
+        <ul id="listaPedido">
+            <!-- Aquí aparecerán los productos agregados -->
+        </ul>
+
+        <button class="btn-registrar" onclick="registrarPedido()">
+            Registrar pedido
+        </button>
+
+        <div id="resultado">
+            <!-- Aquí aparecerá el resumen final del pedido -->
+        </div>
+
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
