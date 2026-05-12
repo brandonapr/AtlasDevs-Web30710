@@ -6,5 +6,44 @@ services:
     staticPublishPath: ./dist/web
     routes:
       - type: rewrite
+        source: /menu
+        destination: /menu/index.html
+      - type: rewrite
         source: /menu/*
         destination: /menu/index.html
+      - type: rewrite
+        source: /orden
+        destination: /orden/index.html
+      - type: rewrite
+        source: /orden/*
+        destination: /orden/index.html
+      - type: rewrite
+        source: /login
+        destination: /login/index.html
+      - type: rewrite
+        source: /login/*
+        destination: /login/index.html
+      - type: rewrite
+        source: /admin
+        destination: /admin/index.html
+      - type: rewrite
+        source: /admin/*
+        destination: /admin/index.html
+      - type: rewrite
+        source: /caja
+        destination: /caja/index.html
+      - type: rewrite
+        source: /caja/*
+        destination: /caja/index.html
+      - type: rewrite
+        source: /cocina
+        destination: /cocina/index.html
+      - type: rewrite
+        source: /cocina/*
+        destination: /cocina/index.html
+      - type: rewrite
+        source: /mesera
+        destination: /mesera/index.html
+      - type: rewrite
+        source: /mesera/*
+        destination: /mesera/index.html
