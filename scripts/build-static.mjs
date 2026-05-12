@@ -10,7 +10,10 @@ const activeDirs = [
   "admin",
   "caja",
   "cocina",
+  "css",
+  "data",
   "img",
+  "js",
   "login",
   "menu",
   "mesera",
@@ -18,16 +21,7 @@ const activeDirs = [
 ];
 
 const activeFiles = [
-  "index.html",
-  "css/menu.css",
-  "data/productos.json",
-  "data/roles.json",
-  "data/usuarios-prueba.json",
-  "js/menu.js",
-  "js/order-page.js",
-  "js/private.js",
-  "js/supabase-config.js",
-  "js/supabase-service.js"
+  "index.html"
 ];
 
 await rm(target, { recursive: true, force: true });
