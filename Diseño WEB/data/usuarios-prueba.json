@@ -1,0 +1,36 @@
+{
+  "usuarios": [
+    {
+      "usuario": "Admin",
+      "nombre": "Administradora",
+      "rol": "administradora",
+      "ruta": "/admin/",
+      "email": "admin@ensaladasdelvalle.com",
+      "clave_sugerida": "admin123"
+    },
+    {
+      "usuario": "Jhoana",
+      "nombre": "Jhoana",
+      "rol": "caja",
+      "ruta": "/caja/",
+      "email": "jhoana@ensaladasdelvalle.com",
+      "clave_sugerida": "johana123"
+    },
+    {
+      "usuario": "Cocina",
+      "nombre": "Cocinero",
+      "rol": "cocinero",
+      "ruta": "/cocina/",
+      "email": "cocina@ensaladasdelvalle.com",
+      "clave_sugerida": "cocina123"
+    },
+    {
+      "usuario": "Mesera",
+      "nombre": "Mesera",
+      "rol": "mesera",
+      "ruta": "/mesera/",
+      "email": "mesera@ensaladasdelvalle.com",
+      "clave_sugerida": "mesera123"
+    }
+  ]
+}

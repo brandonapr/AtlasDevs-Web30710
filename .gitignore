@@ -5,3 +5,19 @@ dist/
 coverage/
 .idea/
 .vscode/
+*.log
+*.tmp
+*.bak
+~$*
+.~lock.*
+Diseño WEB/.~lock.*
+Diseño WEB/09E09420
+Diseño WEB/fotos platos/
+Diseño WEB/ideas de diseño/
+Diseño WEB/*.docx
+Diseño WEB/*.ods
+Diseño WEB/*.xlsx
+Diseño WEB/*.zip
+Diseño WEB/*.png
+Diseño WEB/*.jpeg
+Diseño WEB/supabase-schema.sql

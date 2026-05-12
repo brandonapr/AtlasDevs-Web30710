@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Menú digital - Ensaladas del Valle</title>
+  <link rel="stylesheet" href="/css/menu.css">
+</head>
+<body data-page="menu">
+  <header class="menu-header">
+    <nav class="public-nav">
+      <a href="/menu/" class="active">Menú</a>
+      <a href="/orden/">Mi orden</a>
+    </nav>
+
+    <div class="brand-wrap">
+      <img src="/img/logo-brand.png" alt="Ensaladas del Valle" class="brand-logo">
+    </div>
+
+    <section class="hero-menu">
+      <div class="hero-copy">
+        <span class="eyebrow">Carta digital</span>
+        <h1>Frescura y sabor <em>en cada bocado</em></h1>
+        <p>Elige tus platos, arma tu pedido y envíalo a caja. No necesitas iniciar sesión.</p>
+        <div class="mesa-pill" id="mesaPill">Pedido para mesa: sin asignar</div>
+      </div>
+      <div class="hero-photo">
+        <img src="/img/platos/10-desayuno-continental-completo.jpg" alt="Desayuno continental completo">
+      </div>
+    </section>
+  </header>
+
+  <main class="menu-shell">
+    <section class="catalog-area">
+      <div class="toolbar">
+        <label class="search-box">
+          <span>Buscar plato</span>
+          <input type="search" id="searchInput" placeholder="Buscar por nombre, código, categoría o descripción">
+        </label>
+        <div class="category-tabs" id="categoryTabs" aria-label="Categorías"></div>
+      </div>
+
+      <div class="result-count" id="resultCount"></div>
+      <section class="products-grid" id="productsGrid" aria-live="polite"></section>
+    </section>
+
+    <aside class="cart-panel" id="cartPanel" aria-label="Mi pedido">
+      <div class="cart-header">
+        <div>
+          <span class="eyebrow">Orden digital</span>
+          <h2>Mi pedido</h2>
+        </div>
+        <button class="cart-close" id="cartClose" type="button">Cerrar</button>
+      </div>
+
+      <div class="cart-list" id="cartList"></div>
+
+      <form class="checkout-form" id="checkoutForm">
+        <label>
+          Nombre o referencia
+          <input type="text" id="clienteNombre" placeholder="Daniel">
+        </label>
+        <label>
+          Mesa
+          <input type="text" id="mesaInput" placeholder="Mesa 3">
+        </label>
+        <label>
+          Observación
+          <textarea id="observacionInput" placeholder="Sin cebolla, jugo sin azúcar"></textarea>
+        </label>
+
+        <div class="cart-total-row">
+          <span>Total</span>
+          <strong id="cartTotal">$0.00</strong>
+        </div>
+
+        <button type="submit" class="primary-action">Registrar pedido</button>
+        <p class="status-message" id="orderStatus">El pedido se guardará con estado inicial pendiente.</p>
+      </form>
+    </aside>
+  </main>
+
+  <button class="floating-cart" id="floatingCart" type="button">
+    <span>Ver pedido</span>
+    <strong id="floatingTotal">$0.00</strong>
+  </button>
+
+  <script type="module" src="/js/menu.js"></script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: edvalledigital-menu
+    runtime: static
+    buildCommand: npm run build:static
+    staticPublishPath: ./dist/web
+    routes:
+      - type: rewrite
+        source: /menu/*
+        destination: /menu/index.html
