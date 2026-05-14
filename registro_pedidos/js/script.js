@@ -105,7 +105,7 @@ function mostrarPedido() {
     lista.innerHTML = "";
 
     for (let i = 0; i < pedido.length; i++) {
-        lista.innerHTML += "<li>" + pedido[i].producto + " - Cantidad: " + pedido[i].cantidad + "</li>";
+        lista.innerHTML += "<li class='item-pedido'><span>" + pedido[i].producto + "</span><strong>Cantidad: " + pedido[i].cantidad + "</strong></li>";
     }
 }
 
