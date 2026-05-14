@@ -24,7 +24,7 @@ let productosPorCategoria = {
         "Patacones clásicos - $4.00",
         "Patacón completo - $6.00",
         "Bolón de queso - $1.50",
-        "Bolón mixto - $2.75",
+        "Bolón mixto - $2.50",
         "Bolón junior - $2.75",
         "Bolón chorreado - $3.50",
         "Empanadas de morocho - $1.50",
