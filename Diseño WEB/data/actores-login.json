@@ -3,7 +3,7 @@
   "roles": [
     {
       "id": "caja",
-      "nombre": "Caja / Dueña",
+      "nombre": "Caja",
       "requiere_login": true,
       "ruta_inicial": "panel-caja.html",
       "permisos": [
@@ -15,7 +15,7 @@
     },
     {
       "id": "cocinero",
-      "nombre": "Cocinero",
+      "nombre": "Cocina",
       "requiere_login": true,
       "ruta_inicial": "panel-cocina.html",
       "permisos": [

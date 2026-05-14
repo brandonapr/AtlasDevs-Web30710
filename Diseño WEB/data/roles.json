@@ -12,13 +12,13 @@
     },
     {
       "id": "caja",
-      "nombre": "Caja / Dueña",
+      "nombre": "Caja",
       "ruta": "/caja",
       "permisos": ["visualizar_pedidos", "confirmar_pedido", "validar_cobro", "cerrar_ticket"]
     },
     {
       "id": "cocinero",
-      "nombre": "Cocinero",
+      "nombre": "Cocina",
       "ruta": "/cocina",
       "permisos": ["ver_cola_produccion", "actualizar_estado"]
     },

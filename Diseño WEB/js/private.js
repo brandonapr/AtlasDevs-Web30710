@@ -4,8 +4,7 @@ import {
   cargarPedidosCaja,
   cargarPedidosCocina,
   cargarPedidosMesera,
-  cargarProductos,
-  iniciarSesion
+  cargarProductos
 } from "/js/supabase-service.js";
 
 const SESSION_KEY = "edv_private_session";
@@ -177,7 +176,7 @@ async function setupLogin() {
     const loginUser = testUsers.find((user) => normalizeLogin(user.usuario) === normalizeLogin(usuario));
 
     if (!usuario || !password) {
-      status.textContent = "Completa usuario y contrasena.";
+      status.textContent = "Completa usuario y contraseña.";
       status.className = "status-message error";
       return;
     }
@@ -188,37 +187,26 @@ async function setupLogin() {
       return;
     }
 
-    try {
-      const result = await iniciarSesion(loginUser.email, password);
-      const perfil = result.perfil || null;
-      const roleId = perfil?.rol || loginUser.rol;
-      const assignedRole = roles.find((role) => role.id === roleId);
-
-      if (perfil && perfil.rol !== loginUser.rol) {
-        status.textContent = `El usuario ${loginUser.usuario} pertenece a ${assignedRole?.nombre || perfil.rol}, no al rol esperado.`;
-        status.className = "status-message error";
-        return;
-      }
-
-      setSession({
-        usuario: loginUser.usuario,
-        email: loginUser.email,
-        name: perfil?.nombre || loginUser.nombre,
-        role: roleId,
-        mode: result.modo,
-        loginAt: new Date().toISOString()
-      });
-      const next = new URLSearchParams(window.location.search).get("next");
-      const target = result.modo === "supabase" ? assignedRole?.ruta : loginUser.ruta;
-      const safeNext = next && next.includes(`/${ROLE_ROUTES[roleId] || ""}/`) ? next : target;
-      if (!safeNext) {
-        throw new Error("El rol autenticado no tiene ruta interna configurada.");
-      }
-      window.location.href = safeNext;
-    } catch (error) {
-      status.textContent = `No se pudo iniciar sesion: ${error.message}`;
+    if (password !== loginUser.clave_sugerida) {
+      status.textContent = "Contraseña incorrecta para este usuario.";
       status.className = "status-message error";
+      return;
     }
+
+    const assignedRole = roles.find((role) => role.id === loginUser.rol);
+    const roleName = assignedRole?.nombre || loginUser.rol;
+
+    setSession({
+      usuario: loginUser.usuario,
+      email: loginUser.email,
+      name: loginUser.nombre,
+      role: loginUser.rol,
+      mode: "demo",
+      loginAt: new Date().toISOString()
+    });
+
+    status.textContent = `Bienvenido/a, ${loginUser.nombre}. Rol: ${roleName}.`;
+    status.className = "status-message ok";
   });
 }
 
