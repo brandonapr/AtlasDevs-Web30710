@@ -4,8 +4,8 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "echo dev pendiente",
+    "build": "node --check ../../registro_pedidos/js/script.js && node --check ../../registro_pedidos/js/resumen.js",
     "lint": "echo lint pendiente"
   }
 }
