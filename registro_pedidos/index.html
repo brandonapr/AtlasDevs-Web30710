@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RF02 - Registro de Pedidos</title>
+    <link rel="stylesheet" href="estilos/style.css">
+</head>
+<body>
+
+    <main class="contenedor">
+
+        <header class="encabezado">
+            <p class="etiqueta">RF02</p>
+            <h1>Registro de Pedidos</h1>
+            <p class="descripcion">
+                Modulo para registrar pedidos del restaurante Ensaladas del Valle.
+            </p>
+        </header>
+
+        <form id="formPedido">
+
+            <div class="campo">
+                <label for="mesa">Mesa</label>
+                <select id="mesa" required>
+                    <option value="">Seleccione una mesa</option>
+                    <option value="Mesa 1">Mesa 1</option>
+                    <option value="Mesa 2">Mesa 2</option>
+                    <option value="Mesa 3">Mesa 3</option>
+                    <option value="Mesa 4">Mesa 4</option>
+                    <option value="Mesa 5">Mesa 5</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="categoria">Categoria</label>
+                <select id="categoria" onchange="cargarProductos()" required>
+                    <option value="">Seleccione una categoria</option>
+                    <option value="bebidas">Bebidas</option>
+                    <option value="desayunos">Desayunos</option>
+                    <option value="snacks">Snacks</option>
+                    <option value="postres">Postres</option>
+                </select>
+            </div>
+
+            <div class="campo campo-producto">
+                <label for="producto">Producto</label>
+                <select id="producto" required>
+                    <option value="">Primero seleccione una categoria</option>
+                </select>
+            </div>
+
+            <div class="campo">
+                <label for="cantidad">Cantidad</label>
+                <input type="number" id="cantidad" min="1" value="1" required>
+            </div>
+
+            <button type="button" onclick="agregarProducto()">Agregar producto</button>
+
+        </form>
+
+        <section class="panel-pedido" aria-labelledby="tituloPedido">
+            <h2 id="tituloPedido">Pedido actual</h2>
+
+            <ul id="listaPedido">
+                <!-- Aqui apareceran los productos agregados -->
+            </ul>
+
+            <button class="btn-registrar" onclick="registrarPedido()">
+                Registrar pedido
+            </button>
+        </section>
+
+        <div id="resultado">
+            <!-- Aqui aparecera el resumen final del pedido -->
+        </div>
+
+    </main>
+
+    <script src="js/script.js"></script>
+</body>
+</html>
