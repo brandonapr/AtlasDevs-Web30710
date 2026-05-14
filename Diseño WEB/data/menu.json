@@ -17,7 +17,7 @@
     "categoria": "Desayunos",
     "descripcion": "Bolon de verde mixto con queso y chicharron, servido caliente.",
     "imagen": "fotos platos/Bolon Mixto.jpeg",
-    "precio": 2.5,
+    "precio": 1,
     "disponible": true,
     "destacado": false
   },

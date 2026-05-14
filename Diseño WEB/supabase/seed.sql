@@ -16,7 +16,7 @@ insert into public.productos (
 )
 values
   ('01', 'Batidos naturales', 'Bebidas', 'Batidos', 'Batidos naturales disponibles segun fruta del dia.', 2.00, '/img/platos/01-batidos.jpg', true, true, array['Mas vendido', 'Fresco del dia']::text[]),
-  ('02', 'Bolon mixto', 'Bolones', 'Bolones', 'Bolon tradicional de verde mixto con queso y chicharron.', 2.50, '/img/platos/02-bolon-mixto.jpg', true, true, array['Mas vendido']::text[]),
+  ('02', 'Bolon mixto', 'Bolones', 'Bolones', 'Bolon tradicional de verde mixto con queso y chicharron.', 1.00, '/img/platos/02-bolon-mixto.jpg', true, true, array['Mas vendido']::text[]),
   ('03', 'Bolon de chicharron', 'Bolones', 'Bolones', 'Bolon relleno de chicharron para desayuno o merienda.', 2.50, '/img/platos/03-bolon-de-chicharron.jpg', true, false, array['Disponible']::text[]),
   ('04', 'Bolon de queso', 'Bolones', 'Bolones', 'Bolon de verde relleno con queso derretido.', 2.25, '/img/platos/04-bolon-de-queso.jpg', true, false, array['Disponible']::text[]),
   ('05', 'Desayuno con patacon', 'Desayunos', 'Desayunos', 'Patacon, huevo y bebida caliente de la casa.', 3.75, '/img/platos/05-desayuno-con-patacon.jpg', true, false, array['Nuevo']::text[]),
