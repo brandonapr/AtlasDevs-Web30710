@@ -1,4 +1,10 @@
-let datosPedido = JSON.parse(localStorage.getItem("pedidoRegistrado"));
+let datosPedido = null;
+
+try {
+    datosPedido = JSON.parse(localStorage.getItem("pedidoRegistrado"));
+} catch (error) {
+    datosPedido = null;
+}
 
 function mostrarResumen() {
     let caja = document.getElementById("cajaResumen");
