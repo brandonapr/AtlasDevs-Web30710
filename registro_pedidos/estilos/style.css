@@ -156,7 +156,7 @@ form button {
 }
 
 #listaPedido:empty::before {
-    content: "Aun no hay productos agregados.";
+    content: "Aún no hay productos agregados.";
     color: #6a746d;
 }
 
