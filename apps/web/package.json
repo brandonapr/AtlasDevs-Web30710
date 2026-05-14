@@ -5,7 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
+    "build": "vite build ../../registro_pedidos --outDir ../dist/registro_pedidos --emptyOutDir",
     "lint": "echo lint pendiente"
+  },
+  "devDependencies": {
+    "vite": "^5.4.11"
   }
 }
