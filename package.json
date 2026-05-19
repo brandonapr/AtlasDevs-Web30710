@@ -11,6 +11,7 @@
     "build:web": "npm --workspace apps/web run build",
     "lint:web": "npm --workspace apps/web run lint",
     "build:static": "node scripts/build-static.mjs",
-    "check:supabase": "node scripts/check-supabase.mjs"
+    "check:supabase": "node scripts/check-supabase.mjs",
+    "test:roles": "node scripts/test-roles.mjs"
   }
 }

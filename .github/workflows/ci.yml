@@ -17,3 +17,5 @@ jobs:
           node-version: 20
       - run: npm install
       - run: npm run build:web --if-present
+      - run: npm run build:static
+      - run: npm run test:roles
