@@ -1,6 +1,6 @@
 # AtlasDevs-Web30710
 Repositorio dedicado a la organizacion, versionamiento y desarrollo del proyecto EDValleDigital para Ensaladas del Valle.
-
+____
 ## Base actual
 - Documentacion formal del acta en `docs/actas`.
 - Planificacion inicial y automatizacion de requests en `docs/planificacion`.
