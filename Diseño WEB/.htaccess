@@ -1,0 +1,10 @@
+RewriteEngine On
+
+RewriteRule ^menu/([^/]+)/?$ /menu/index.html [L,QSA]
+RewriteRule ^menu/?$ /menu/index.html [L,QSA]
+RewriteRule ^orden/?$ /orden/index.html [L,QSA]
+RewriteRule ^login/?$ /login/index.html [L,QSA]
+RewriteRule ^admin/?$ /admin/index.html [L,QSA]
+RewriteRule ^caja/?$ /caja/index.html [L,QSA]
+RewriteRule ^cocina/?$ /cocina/index.html [L,QSA]
+RewriteRule ^mesera/?$ /mesera/index.html [L,QSA]

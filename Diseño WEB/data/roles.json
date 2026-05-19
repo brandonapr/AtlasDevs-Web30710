@@ -1,0 +1,32 @@
+{
+  "comensal": {
+    "requiereLogin": false,
+    "rutas": ["/menu", "/menu/:mesa", "/orden"]
+  },
+  "rolesPrivados": [
+    {
+      "id": "administradora",
+      "nombre": "Administradora",
+      "ruta": "/admin",
+      "permisos": ["crear_producto", "editar_producto", "cambiar_precio", "cambiar_imagen", "activar_desactivar", "marcar_destacado"]
+    },
+    {
+      "id": "caja",
+      "nombre": "Caja",
+      "ruta": "/caja",
+      "permisos": ["visualizar_pedidos", "confirmar_pedido", "validar_cobro", "cerrar_ticket"]
+    },
+    {
+      "id": "cocinero",
+      "nombre": "Cocina",
+      "ruta": "/cocina",
+      "permisos": ["ver_cola_produccion", "actualizar_estado"]
+    },
+    {
+      "id": "mesera",
+      "nombre": "Mesera",
+      "ruta": "/mesera",
+      "permisos": ["ver_platos_listos", "recibir_aviso"]
+    }
+  ]
+}

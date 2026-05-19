@@ -64,6 +64,29 @@ Definir una distribucion clara del trabajo para que el equipo pueda colaborar en
 - Crear modelo de pedido con estados `recibido`, `en_preparacion` y `listo`.
 - Desplegar ambiente de pruebas.
 
+## Actualizacion al 12 de mayo de 2026
+
+La planificacion inicial se ajusto al avance real del primer corte. Para reducir riesgo tecnico, el equipo priorizo HTML, CSS y JavaScript puro con Supabase como backend administrado, en lugar de iniciar con React y un API propio.
+
+### Actividades realizadas
+
+- Repositorio Git y rama de trabajo preparados.
+- Backlog inicial y plan Scrum documentados.
+- Inventario visual de platos organizado.
+- RF01 - Ver menu digital implementado.
+- RF02 - Registrar pedido digital implementado.
+- Rutas publicas y privadas separadas.
+- Supabase preparado con schema, seed y roles.
+- Prototipo publicado en Render.
+
+### Actividades pendientes
+
+- Cargar seed y usuarios Auth en Supabase.
+- Validar login de actores internos.
+- Probar persistencia real de pedidos.
+- Formalizar validacion de cobro fisico y cierre de ticket.
+- Completar CRUD administrativo del menu.
+
 ## Definition of Done minima
 - Ticket vinculado en Jira.
 - Rama y pull request creados.

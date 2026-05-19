@@ -6,6 +6,15 @@ ____
 - Planificacion inicial y automatizacion de requests en `docs/planificacion`.
 - Insumo para carga de tareas en Jira en `docs/jira`.
 - Estructura base de web app en `apps/web` y `apps/api`.
+- Prototipo funcional HTML/CSS/JS puro en `Diseño WEB`.
+
+## Prototipo EDValleDigital
+- Menu publico: `Diseño WEB/menu`.
+- Area privada: `Diseño WEB/login`, `admin`, `caja`, `cocina`, `mesera`.
+- SQL de Supabase: `Diseño WEB/supabase`.
+- Guia de pruebas: `Diseño WEB/docs/PRUEBAS_SUPABASE.md`.
+- Build estatico para Render: `npm run build:static`.
+- Verificacion Supabase: `npm run check:supabase`.
 
 ## Orden recomendado de trabajo
 1. Revisar [distribucion y ejecucion](./docs/planificacion/distribucion-y-ejecucion.md).

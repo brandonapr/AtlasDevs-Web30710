@@ -1,0 +1,70 @@
+{
+  "nota": "El comensal no requiere login. Supabase Auth debe guardar las credenciales reales; este JSON solo define roles, rutas y permisos para el prototipo.",
+  "roles": [
+    {
+      "id": "caja",
+      "nombre": "Caja",
+      "requiere_login": true,
+      "ruta_inicial": "panel-caja.html",
+      "permisos": [
+        "visualizar_pedidos_entrantes",
+        "confirmar_pedido",
+        "validar_cobro_fisico",
+        "cerrar_ticket"
+      ]
+    },
+    {
+      "id": "cocinero",
+      "nombre": "Cocina",
+      "requiere_login": true,
+      "ruta_inicial": "panel-cocina.html",
+      "permisos": [
+        "ver_cola_produccion",
+        "actualizar_estado_pedido"
+      ]
+    },
+    {
+      "id": "mesera",
+      "nombre": "Mesera",
+      "requiere_login": true,
+      "ruta_inicial": "panel-mesera.html",
+      "permisos": [
+        "recibir_aviso_plato_listo",
+        "ver_pedidos_listos"
+      ]
+    },
+    {
+      "id": "administradora",
+      "nombre": "Administradora",
+      "requiere_login": true,
+      "ruta_inicial": "panel-admin.html",
+      "permisos": [
+        "gestionar_menu",
+        "activar_desactivar_platos",
+        "ver_usuarios"
+      ]
+    }
+  ],
+  "usuarios_demo": [
+    {
+      "nombre": "Caja Ensaladas del Valle",
+      "email": "caja@ensaladasdelvalle.local",
+      "rol": "caja"
+    },
+    {
+      "nombre": "Cocina Ensaladas del Valle",
+      "email": "cocina@ensaladasdelvalle.local",
+      "rol": "cocinero"
+    },
+    {
+      "nombre": "Mesera Ensaladas del Valle",
+      "email": "mesera@ensaladasdelvalle.local",
+      "rol": "mesera"
+    },
+    {
+      "nombre": "Admin Ensaladas del Valle",
+      "email": "admin@ensaladasdelvalle.local",
+      "rol": "administradora"
+    }
+  ]
+}
