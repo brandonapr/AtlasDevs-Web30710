@@ -4,7 +4,9 @@ import {
   cargarPedidosCaja,
   cargarPedidosCocina,
   cargarPedidosMesera,
-  cargarProductos
+  cargarProductos,
+  cargarPerfilActual,
+  iniciarSesion
 } from "/js/supabase-service.js";
 
 const SESSION_KEY = "edv_private_session";
@@ -28,7 +30,11 @@ function setSession(session) {
   localStorage.setItem(SESSION_KEY, JSON.stringify(session));
 }
 
-function requireSession() {
+function clearSession() {
+  localStorage.removeItem(SESSION_KEY);
+}
+
+async function requireSession() {
   if (privatePage === "login") return null;
   const session = getSession();
   if (!session) {
@@ -36,13 +42,43 @@ function requireSession() {
     return null;
   }
 
-  const allowedPage = ROLE_ROUTES[session.role];
+  let perfil = null;
+  try {
+    perfil = await cargarPerfilActual();
+  } catch {
+    clearSession();
+    window.location.href = `/login/?next=/${privatePage}/`;
+    return null;
+  }
+
+  const effectiveSession = {
+    ...session,
+    email: perfil.email,
+    name: perfil.nombre,
+    role: perfil.rol,
+    mode: "supabase"
+  };
+  const allowedPage = ROLE_ROUTES[effectiveSession.role];
+
   if (allowedPage && allowedPage !== privatePage) {
     window.location.href = `/${allowedPage}/`;
     return null;
   }
 
-  return session;
+  if (!allowedPage) {
+    clearSession();
+    window.location.href = `/login/?next=/${privatePage}/`;
+    return null;
+  }
+
+  setSession(effectiveSession);
+  return effectiveSession;
+}
+
+function getRequestedPath() {
+  const params = new URLSearchParams(window.location.search);
+  const next = params.get("next");
+  return next && next.startsWith("/") ? next : null;
 }
 
 function money(value) {
@@ -176,7 +212,7 @@ async function setupLogin() {
     const loginUser = testUsers.find((user) => normalizeLogin(user.usuario) === normalizeLogin(usuario));
 
     if (!usuario || !password) {
-      status.textContent = "Completa usuario y contraseña.";
+      status.textContent = "Completa usuario y contrasena.";
       status.className = "status-message error";
       return;
     }
@@ -187,26 +223,42 @@ async function setupLogin() {
       return;
     }
 
-    if (password !== loginUser.clave_sugerida) {
-      status.textContent = "Contraseña incorrecta para este usuario.";
+    status.textContent = "Validando acceso...";
+    status.className = "status-message";
+
+    try {
+      const auth = await iniciarSesion(loginUser.email, password);
+      const assignedRole = roles.find((role) => role.id === auth.perfil?.rol);
+
+      if (!assignedRole) {
+        clearSession();
+        status.textContent = "El usuario no tiene un rol interno autorizado.";
+        status.className = "status-message error";
+        return;
+      }
+
+      setSession({
+        usuario: loginUser.usuario,
+        email: auth.perfil.email,
+        name: auth.perfil.nombre,
+        role: auth.perfil.rol,
+        mode: auth.modo,
+        loginAt: new Date().toISOString()
+      });
+
+      status.textContent = `Bienvenido/a, ${auth.perfil.nombre}. Rol: ${assignedRole.nombre}.`;
+      status.className = "status-message ok";
+
+      const requestedPath = getRequestedPath();
+      const requestedPage = requestedPath?.replace(/^\/+/, "").split("/")[0];
+      const allowedPage = ROLE_ROUTES[auth.perfil.rol];
+      const targetPath = requestedPage === allowedPage ? requestedPath : `${assignedRole.ruta}/`;
+      window.location.href = targetPath;
+    } catch (error) {
+      clearSession();
+      status.textContent = `Acceso denegado: ${error.message}`;
       status.className = "status-message error";
-      return;
     }
-
-    const assignedRole = roles.find((role) => role.id === loginUser.rol);
-    const roleName = assignedRole?.nombre || loginUser.rol;
-
-    setSession({
-      usuario: loginUser.usuario,
-      email: loginUser.email,
-      name: loginUser.nombre,
-      role: loginUser.rol,
-      mode: "demo",
-      loginAt: new Date().toISOString()
-    });
-
-    status.textContent = `Bienvenido/a, ${loginUser.nombre}. Rol: ${roleName}.`;
-    status.className = "status-message ok";
   });
 }
 
@@ -232,7 +284,7 @@ async function init() {
     return;
   }
 
-  const session = requireSession();
+  const session = await requireSession();
   if (!session) return;
 
   await renderOrders();
