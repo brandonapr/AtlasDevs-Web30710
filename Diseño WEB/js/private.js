@@ -6,7 +6,8 @@ import {
   cargarPedidosMesera,
   cargarProductos,
   cargarPerfilActual,
-  iniciarSesion
+  iniciarSesion,
+  actualizarProducto
 } from "/js/supabase-service.js";
 
 const SESSION_KEY = "edv_private_session";
@@ -133,32 +134,76 @@ async function loadOrdersForPage() {
   return cargarPedidos();
 }
 
+/* RENDERIZADO DE TICKETS DE COMANDA COHERENTES */
 async function renderOrders() {
   const panel = document.querySelector("#ordersPanel");
   if (!panel) return;
 
   const orders = await loadOrdersForPage();
   if (orders.length === 0) {
-    panel.innerHTML = `<p class="status-message">No hay pedidos para esta vista todavia.</p>`;
+    panel.innerHTML = `<p class="status-message">No hay pedidos pendientes en este momento.</p>`;
     return;
   }
 
   panel.innerHTML = orders.map((order) => {
     const action = getNextAction(order);
+    const estadoLimpio = order.estado.replaceAll("_", " ");
+    const estadoClase = order.estado.toLowerCase();
+
+    // Custom layout options for Cashier/Caja
+    let paymentOptionMarkup = "";
+    if (privatePage === "caja" && order.estado === "listo") {
+      paymentOptionMarkup = `
+        <div style="margin: 12px 0; background: var(--cream-light); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+          <label style="display:block; font-size:12px; margin-bottom:4px; font-weight:700;">Método de Pago Físico (RF07):</label>
+          <select id="pay-method-${order.codigo}" style="width: 100%; padding: 6px; font-size:13px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
+            <option value="Efectivo">Efectivo</option>
+            <option value="Tarjeta">Tarjeta de Crédito/Débito</option>
+            <option value="Transferencia">Transferencia Bancaria</option>
+          </select>
+        </div>
+      `;
+    }
 
     return `
       <article class="order-summary">
-        <h3>${order.codigo}</h3>
-        <p><strong>Estado:</strong> ${order.estado.replaceAll("_", " ")}</p>
-        <p><strong>Mesa:</strong> ${order.mesa || "Sin mesa"} - <strong>Cliente:</strong> ${order.nombre_cliente || "Sin referencia"}</p>
-        <p><strong>Fecha:</strong> ${new Date(order.fecha_hora).toLocaleString("es-EC")}</p>
-        ${order.observacion ? `<p><strong>Observacion:</strong> ${order.observacion}</p>` : ""}
-        <ul>
-          ${(order.items || []).map((item) => `<li>${item.cantidad} x ${item.nombre}</li>`).join("")}
+        <h3>
+          <span>Código: ${order.codigo}</span>
+          <span class="order-status-pill ${estadoClase}">${estadoLimpio}</span>
+        </h3>
+        <div class="order-info-grid">
+          <div><strong>Mesa:</strong> ${order.mesa || "Sin mesa"}</div>
+          <div><strong>Cliente:</strong> ${order.nombre_cliente || "Sin referencia"}</div>
+          <div style="grid-column: span 2; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <span><strong>Fecha:</strong> ${new Date(order.fecha_hora).toLocaleDateString("es-EC")}</span>
+            <span><strong>Hora:</strong> <span class="order-time-tag">${new Date(order.fecha_hora).toLocaleTimeString("es-EC", { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span></span>
+          </div>
+        </div>
+        ${(() => {
+          if (!order.observacion) return "";
+          const isAllergies = order.observacion.includes("ALERGIAS:");
+          const style = isAllergies ? 'color: var(--soft-red); font-weight: 800; font-size: 13px;' : 'font-size: 13px; color: var(--main-color);';
+          const displayObs = order.observacion.replaceAll("ALERGIAS:", "⚠️ ALERGIAS:");
+          return `<p style="margin: 8px 0; ${style}"><strong>Obs:</strong> <em>${displayObs}</em></p>`;
+        })()}
+        <ul aria-label="Detalle de platos">
+          ${(order.items || []).map((item) => `
+            <li><strong>${item.cantidad}x</strong> ${item.nombre || item.plato} <span style="float:right; color:var(--gray-muted);">${money(item.subtotal)}</span></li>
+          `).join("")}
         </ul>
-        <p><strong>Total:</strong> ${money(order.total)}</p>
+        
+        <div class="order-total-block">
+          <span>Total a cobrar:</span>
+          <strong>${money(order.total)}</strong>
+        </div>
+
+        ${paymentOptionMarkup}
+
         ${action ? `
-          <button class="secondary-action" type="button" data-order-action="${action.estado}" data-codigo="${order.codigo}">
+          <button class="${action.estado === 'cerrado' ? 'primary-action' : 'secondary-action'}" 
+                  type="button" 
+                  data-order-action="${action.estado}" 
+                  data-codigo="${order.codigo}">
             ${action.label}
           </button>
         ` : ""}
@@ -167,6 +212,7 @@ async function renderOrders() {
   }).join("");
 }
 
+/* RENDERIZADO DE LA TABLA DE ADMINISTRACIÓN CON INTERACTIVIDAD */
 async function renderAdminProducts() {
   const container = document.querySelector("#adminProducts");
   if (!container) return;
@@ -177,28 +223,118 @@ async function renderAdminProducts() {
     <table class="private-table">
       <thead>
         <tr>
-          <th>Codigo</th>
-          <th>Producto</th>
-          <th>Categoria</th>
+          <th>Código</th>
+          <th>Nombre del Producto</th>
+          <th>Categoría</th>
           <th>Precio</th>
           <th>Estado</th>
+          <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
         ${products.map((product) => `
           <tr>
-            <td>${product.id}</td>
+            <td><strong>${product.id}</strong></td>
             <td>${product.nombre}</td>
             <td>${product.categoria}</td>
-            <td>${money(product.precio)}</td>
-            <td>${product.disponible ? "Activo" : "Inactivo"}</td>
+            <td>
+              <input type="number" step="0.01" value="${product.precio}" 
+                     class="table-price-input" 
+                     data-id="${product.id}" 
+                     style="width: 75px; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px; margin: 0;">
+            </td>
+            <td>
+              <span class="product-status ${product.disponible ? '' : 'off'}" style="position:relative; top:0; right:0; display:inline-block;">
+                ${product.disponible ? 'Activo' : 'Inactivo'}
+              </span>
+            </td>
+            <td>
+              <button class="secondary-action qty-button" 
+                      type="button" 
+                      data-admin-toggle-id="${product.id}" 
+                      data-disponible="${product.disponible}" 
+                      style="width:auto; height:auto; padding: 6px 12px; border-radius: 20px; font-size:12px;">
+                Alternar
+              </button>
+            </td>
           </tr>
         `).join("")}
       </tbody>
     </table>
   `;
+
+  // Añadir Listeners de cambios de precio en la tabla
+  document.querySelectorAll(".table-price-input").forEach((input) => {
+    input.addEventListener("change", async (e) => {
+      const id = e.target.dataset.id;
+      const nuevoPrecio = parseFloat(e.target.value);
+      if (isNaN(nuevoPrecio) || nuevoPrecio < 0) return;
+
+      try {
+        const res = await actualizarProducto(id, { precio: nuevoPrecio });
+        console.log(`Precio cambiado a ${nuevoPrecio} para producto ${id} en modo ${res.modo}`);
+      } catch (err) {
+        alert(`Error al actualizar precio: ${err.message}`);
+      }
+    });
+  });
+
+  // Añadir Listeners de toggles de disponibilidad
+  document.querySelectorAll("[data-admin-toggle-id]").forEach((btn) => {
+    btn.addEventListener("click", async (e) => {
+      const id = btn.dataset.adminToggleId;
+      const disponibleActual = btn.dataset.disponible === "true";
+      
+      try {
+        await actualizarProducto(id, { disponible: !disponibleActual });
+        await renderAdminProducts();
+      } catch (err) {
+        alert(`Error al actualizar disponibilidad: ${err.message}`);
+      }
+    });
+  });
 }
 
+/* REGISTRO DE FORMULARIO DE EDICIÓN ADMIN */
+function setupAdminForm() {
+  const form = document.querySelector("#adminForm");
+  if (!form) return;
+
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const id = document.querySelector("#adminId").value.trim();
+    const nombre = document.querySelector("#adminNombre").value.trim();
+    const categoria = document.querySelector("#adminCategoria").value;
+    const precio = parseFloat(document.querySelector("#adminPrecio").value);
+    const imagen = document.querySelector("#adminImagen").value.trim() || "/img/platos/placeholder-plato.svg";
+    const descripcion = document.querySelector("#adminDescripcion").value.trim();
+
+    const status = document.querySelector("#adminStatus");
+    status.textContent = "Guardando cambios...";
+    status.className = "status-message";
+
+    try {
+      const result = await actualizarProducto(id, {
+        nombre,
+        categoria,
+        precio,
+        imagen,
+        descripcion,
+        disponible: true
+      });
+      
+      status.textContent = `¡Producto ${id} guardado con éxito en modo ${result.modo}!`;
+      status.className = "status-message ok";
+      form.reset();
+      await renderAdminProducts();
+    } catch (err) {
+      status.textContent = `Error al guardar: ${err.message}`;
+      status.className = "status-message error";
+    }
+  });
+}
+
+/* SESIÓN DE LOGIN */
 async function setupLogin() {
   const [roles, testUsers] = await Promise.all([loadRoles(), loadTestUsers()]);
   const form = document.querySelector("#loginForm");
@@ -209,10 +345,16 @@ async function setupLogin() {
 
     const usuario = document.querySelector("#usuarioInput").value.trim();
     const password = document.querySelector("#passwordInput").value;
-    const loginUser = testUsers.find((user) => normalizeLogin(user.usuario) === normalizeLogin(usuario));
+    
+    // Permitir loguear ya sea con el nombre de usuario (ej. Admin, Jhoana) o con el correo Auth
+    const loginUser = testUsers.find(
+      (user) =>
+        normalizeLogin(user.usuario) === normalizeLogin(usuario) ||
+        normalizeLogin(user.email) === normalizeLogin(usuario)
+    );
 
     if (!usuario || !password) {
-      status.textContent = "Completa usuario y contrasena.";
+      status.textContent = "Completa usuario y contraseña.";
       status.className = "status-message error";
       return;
     }
@@ -223,7 +365,7 @@ async function setupLogin() {
       return;
     }
 
-    status.textContent = "Validando acceso...";
+    status.textContent = "Validando acceso con Supabase...";
     status.className = "status-message";
 
     try {
@@ -246,14 +388,17 @@ async function setupLogin() {
         loginAt: new Date().toISOString()
       });
 
-      status.textContent = `Bienvenido/a, ${auth.perfil.nombre}. Rol: ${assignedRole.nombre}.`;
+      status.textContent = `¡Bienvenido/a, ${auth.perfil.nombre}! Redirigiendo...`;
       status.className = "status-message ok";
 
       const requestedPath = getRequestedPath();
       const requestedPage = requestedPath?.replace(/^\/+/, "").split("/")[0];
       const allowedPage = ROLE_ROUTES[auth.perfil.rol];
       const targetPath = requestedPage === allowedPage ? requestedPath : `${assignedRole.ruta}/`;
-      window.location.href = targetPath;
+      
+      setTimeout(() => {
+        window.location.href = targetPath;
+      }, 800);
     } catch (error) {
       clearSession();
       status.textContent = `Acceso denegado: ${error.message}`;
@@ -262,15 +407,50 @@ async function setupLogin() {
   });
 }
 
+/* RENDERIZADO DINÁMICO DEL ENCABEZADO DE USUARIO */
+function renderUserHeader(session) {
+  const shell = document.querySelector("#privateShell");
+  if (!shell) return;
+
+  const headerDiv = document.createElement("div");
+  headerDiv.className = "private-user-header";
+  headerDiv.innerHTML = `
+    <div class="user-info">
+      Sesión: <strong>${session.name}</strong> | Rol: <span>${session.role.toUpperCase()}</span>
+    </div>
+    <button id="logoutBtn" type="button">Cerrar Sesión</button>
+  `;
+
+  shell.insertBefore(headerDiv, shell.firstChild);
+
+  document.getElementById("logoutBtn")?.addEventListener("click", () => {
+    clearSession();
+    window.location.href = "/login/";
+  });
+}
+
+/* MANEJADOR DE CLICS EN BOTONES DE COMANDA */
 document.addEventListener("click", async (event) => {
   const button = event.target.closest("[data-order-action]");
   if (!button) return;
+
+  const codigo = button.dataset.codigo;
+  const nextEstado = button.dataset.orderAction;
+
+  // Si es caja cobrando un ticket listo, mostramos detalle de pago físico
+  if (privatePage === "caja" && nextEstado === "cerrado") {
+    const payMethodSelect = document.getElementById(`pay-method-${codigo}`);
+    const payMethod = payMethodSelect ? payMethodSelect.value : "Efectivo";
+    if (!confirm(`¿Confirmar cobro y cierre de ticket para el pedido ${codigo} con método: ${payMethod}?`)) {
+      return;
+    }
+  }
 
   button.disabled = true;
   button.textContent = "Actualizando...";
 
   try {
-    await actualizarEstadoPedido(button.dataset.codigo, button.dataset.orderAction);
+    await actualizarEstadoPedido(codigo, nextEstado);
     await renderOrders();
   } catch (error) {
     button.disabled = false;
@@ -287,8 +467,13 @@ async function init() {
   const session = await requireSession();
   if (!session) return;
 
+  // Renderizar cabecera de usuario
+  renderUserHeader(session);
+
+  // Cargar elementos de la vista activa
   await renderOrders();
   await renderAdminProducts();
+  setupAdminForm();
 }
 
 init();

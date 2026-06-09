@@ -4,13 +4,24 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Mi orden - Ensaladas del Valle</title>
+  <meta name="description" content="Sigue el estado de tus pedidos recientes en Ensaladas del Valle. Estado en tiempo real de tu comanda.">
+  <!-- Google Fonts Link -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/css/menu.css">
 </head>
 <body data-page="orden">
+  <header class="menu-header">
+    <nav class="public-nav" aria-label="Navegación principal">
+      <a href="/menu/" id="navMenu">Menú</a>
+      <a href="/orden/" class="active" id="navOrden">Mi orden</a>
+      <a href="/login/" id="navLogin" style="margin-left: auto;">Acceso Equipo</a>
+    </nav>
+  </header>
+
   <header class="simple-header">
-    <a href="/menu/" class="back-link">Volver al menú</a>
-    <img src="/img/logo-brand.png" alt="Ensaladas del Valle">
-    <h1>Mi orden</h1>
+    <img src="/img/logo-brand.png" alt="Logotipo Ensaladas del Valle">
+    <h1>Estado de mi pedido</h1>
   </header>
 
   <main class="order-history">

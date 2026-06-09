@@ -3,32 +3,69 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Login - EDValleDigital</title>
+  <title>Ingreso de Equipo - EDValleDigital</title>
+  <meta name="description" content="Acceso privado para el personal de administración, caja, cocina y meseras de Ensaladas del Valle.">
+  <!-- Google Fonts Link -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/css/menu.css">
 </head>
 <body data-private-page="login">
   <header class="simple-header">
-    <a href="/menu/" class="back-link">Volver al menú público</a>
-    <img src="/img/logo-brand.png" alt="Ensaladas del Valle">
-    <h1>Ingreso del equipo</h1>
+    <img src="/img/logo-brand.png" alt="Logotipo Ensaladas del Valle">
+    <h1>Portal de Equipo</h1>
   </header>
 
   <main class="private-shell">
     <section class="private-card">
-      <span class="eyebrow">Área privada</span>
-      <h2>Iniciar sesión</h2>
+      <span class="eyebrow">Área Privada</span>
+      <h2>Iniciar Sesión</h2>
       <form class="private-form" id="loginForm">
-        <label>
-          Usuario
-          <input type="text" id="usuarioInput" autocomplete="username" placeholder="Jhoana">
-        </label>
-        <label>
-          Contraseña
-          <input type="password" id="passwordInput" autocomplete="current-password" placeholder="johana123">
-        </label>
-        <button class="secondary-action" type="submit">Ingresar</button>
-        <p class="status-message" id="loginStatus">Usa el usuario y la contraseña asignados para cada rol interno.</p>
+        <label for="usuarioInput">Usuario o Correo</label>
+        <input type="text" id="usuarioInput" autocomplete="username" placeholder="Ej. Jhoana o admin@ensaladasdelvalle.com" required>
+
+        <label for="passwordInput">Contraseña</label>
+        <input type="password" id="passwordInput" autocomplete="current-password" placeholder="••••••••" required>
+
+        <button class="secondary-action" type="submit" style="margin-top: 14px;">Ingresar al Sistema</button>
+        <p class="status-message" id="loginStatus">Ingresa tus credenciales asignadas de Supabase o Local.</p>
       </form>
+
+      <!-- Panel de Ayuda de Evaluación Académica -->
+      <article class="login-help-card" aria-labelledby="helpTitle">
+        <h4 id="helpTitle">Credenciales de Prueba (Prototipo/Evaluación):</h4>
+        <table>
+          <thead>
+            <tr>
+              <th>Usuario</th>
+              <th>Rol Interno</th>
+              <th>Contraseña</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Admin</strong></td>
+              <td>Administradora</td>
+              <td><code>admin123</code></td>
+            </tr>
+            <tr>
+              <td><strong>Jhoana</strong></td>
+              <td>Caja / Cobros</td>
+              <td><code>johana123</code></td>
+            </tr>
+            <tr>
+              <td><strong>Cocina</strong></td>
+              <td>Cocinero / Cola</td>
+              <td><code>cocina123</code></td>
+            </tr>
+            <tr>
+              <td><strong>Mesera</strong></td>
+              <td>Servicio Mesas</td>
+              <td><code>mesera123</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
     </section>
   </main>
 

@@ -191,6 +191,12 @@ function renderCart() {
         </div>
         <strong>${money.format(item.precio * item.cantidad)}</strong>
       </div>
+      <div class="cart-item-custom-wrapper">
+        <input type="text" class="cart-item-custom-input" 
+               data-id="${item.id}" 
+               placeholder="Sabores/aditivos (ej. Mora, chia, miel)" 
+               value="${item.personalizacion || ''}">
+      </div>
       <div class="cart-item-actions">
         <div class="cart-qty">
           <button class="qty-button" type="button" data-action="decrease" data-id="${item.id}">-</button>
@@ -206,8 +212,15 @@ function renderCart() {
 function syncMesa() {
   const label = state.mesa ? state.mesa : "sin asignar";
   mesaPill.textContent = `Pedido para mesa: ${label}`;
-  if (state.mesa && !mesaInput.value) {
-    mesaInput.value = state.mesa;
+  if (state.mesa) {
+    let numOnly = state.mesa.toLowerCase().replace("mesa", "").trim();
+    if (numOnly) {
+      const optionValue = `Mesa ${numOnly}`;
+      const hasOption = Array.from(mesaInput.options).some((opt) => opt.value === optionValue);
+      if (hasOption) {
+        mesaInput.value = optionValue;
+      }
+    }
   }
 }
 
@@ -255,7 +268,15 @@ function removeProduct(id) {
 function buildOrder() {
   const nombre = document.querySelector("#clienteNombre").value.trim();
   const mesa = mesaInput.value.trim();
-  const observacion = document.querySelector("#observacionInput").value.trim();
+  const observacionBase = document.querySelector("#observacionInput").value.trim();
+  const alergias = document.querySelector("#alergiasInput") ? document.querySelector("#alergiasInput").value.trim() : "";
+  
+  // Combinar alergias y observación en una sola cadena para persistencia compatible
+  const observacion = [
+    alergias ? `ALERGIAS: ${alergias}` : "",
+    observacionBase
+  ].filter(Boolean).join(" | ");
+
   const now = new Date();
 
   return {
@@ -268,7 +289,7 @@ function buildOrder() {
     total: Number(getCartTotal().toFixed(2)),
     items: state.carrito.map((item) => ({
       id: item.id,
-      nombre: item.nombre,
+      nombre: item.personalizacion ? `${item.nombre} (${item.personalizacion})` : item.nombre,
       cantidad: item.cantidad,
       precio_unitario: item.precio,
       subtotal: Number((item.precio * item.cantidad).toFixed(2))
@@ -293,6 +314,19 @@ categoryTabs.addEventListener("click", (event) => {
 searchInput.addEventListener("input", (event) => {
   state.busqueda = event.target.value;
   renderProducts();
+});
+
+document.addEventListener("input", (event) => {
+  const customInput = event.target.closest(".cart-item-custom-input");
+  if (customInput) {
+    const id = customInput.dataset.id;
+    const value = customInput.value;
+    const cartItem = getCartItem(id);
+    if (cartItem) {
+      cartItem.personalizacion = value;
+      saveCart();
+    }
+  }
 });
 
 document.addEventListener("click", (event) => {

@@ -4,28 +4,34 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Menú digital - Ensaladas del Valle</title>
+  <meta name="description" content="Explora nuestro menú digital y realiza tu orden interactiva de ensaladas frescas, desayunos y bolones en Ensaladas del Valle.">
+  <meta name="keywords" content="ensaladas, menú digital, comida saludable, comida a domicilio, restaurante">
+  <!-- Google Fonts Link -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/css/menu.css">
 </head>
 <body data-page="menu">
   <header class="menu-header">
-    <nav class="public-nav">
-      <a href="/menu/" class="active">Menú</a>
-      <a href="/orden/">Mi orden</a>
+    <nav class="public-nav" aria-label="Navegación principal">
+      <a href="/menu/" class="active" id="navMenu">Menú</a>
+      <a href="/orden/" id="navOrden">Mi orden</a>
+      <a href="/login/" id="navLogin" style="margin-left: auto;">Acceso Equipo</a>
     </nav>
 
     <div class="brand-wrap">
-      <img src="/img/logo-brand.png" alt="Ensaladas del Valle" class="brand-logo">
+      <img src="/img/logo-brand.png" alt="Logotipo Ensaladas del Valle" class="brand-logo">
     </div>
 
-    <section class="hero-menu">
+    <section class="hero-menu" aria-labelledby="heroTitle">
       <div class="hero-copy">
         <span class="eyebrow">Carta digital</span>
-        <h1>Frescura y sabor <em>en cada bocado</em></h1>
-        <p>Elige tus platos, arma tu pedido y envíalo a caja. No necesitas iniciar sesión.</p>
-        <div class="mesa-pill" id="mesaPill">Pedido para mesa: sin asignar</div>
+        <h1 id="heroTitle">Frescura y sabor <em>en cada bocado</em></h1>
+        <p>Elige tus platos favoritos, arma tu pedido personalizado y envíalo directamente a cocina. Rápido, fresco y sin necesidad de iniciar sesión.</p>
+        <div class="mesa-pill" id="mesaPill" aria-live="polite">Pedido para mesa: sin asignar</div>
       </div>
       <div class="hero-photo">
-        <img src="/img/platos/10-desayuno-continental-completo.jpg" alt="Desayuno continental completo">
+        <img src="/img/platos/10-desayuno-continental-completo.jpg" alt="Plato destacado: Desayuno continental completo de Ensaladas del Valle" onerror="this.src='https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=600'">
       </div>
     </section>
   </header>
@@ -56,25 +62,48 @@
       <div class="cart-list" id="cartList"></div>
 
       <form class="checkout-form" id="checkoutForm">
-        <label>
-          Nombre o referencia
-          <input type="text" id="clienteNombre" placeholder="Daniel">
-        </label>
-        <label>
-          Mesa
-          <input type="text" id="mesaInput" placeholder="Mesa 3">
-        </label>
-        <label>
-          Observación
-          <textarea id="observacionInput" placeholder="Sin cebolla, jugo sin azúcar"></textarea>
-        </label>
+        <div class="checkout-grid">
+          <div class="form-group">
+            <label for="clienteNombre">Nombre o ref.</label>
+            <input type="text" id="clienteNombre" placeholder="Ej. Daniel" required>
+          </div>
 
-        <div class="cart-total-row">
-          <span>Total</span>
-          <strong id="cartTotal">$0.00</strong>
+          <div class="form-group">
+            <label for="mesaInput">Mesa</label>
+            <select id="mesaInput" required>
+              <option value="" disabled selected>Mesa (1-11)</option>
+              <option value="Mesa 1">Mesa 1</option>
+              <option value="Mesa 2">Mesa 2</option>
+              <option value="Mesa 3">Mesa 3</option>
+              <option value="Mesa 4">Mesa 4</option>
+              <option value="Mesa 5">Mesa 5</option>
+              <option value="Mesa 6">Mesa 6</option>
+              <option value="Mesa 7">Mesa 7</option>
+              <option value="Mesa 8">Mesa 8</option>
+              <option value="Mesa 9">Mesa 9</option>
+              <option value="Mesa 10">Mesa 10</option>
+              <option value="Mesa 11">Mesa 11</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="alergiasInput">Alergias</label>
+            <input type="text" id="alergiasInput" placeholder="Ej. Maní, lácteos">
+          </div>
+
+          <div class="form-group">
+            <label for="observacionInput">Observación</label>
+            <input type="text" id="observacionInput" placeholder="Ej. Sin cebolla">
+          </div>
         </div>
 
-        <button type="submit" class="primary-action">Registrar pedido</button>
+        <div class="checkout-footer-row">
+          <div class="cart-total-box">
+            <span class="total-label">Total</span>
+            <strong id="cartTotal">$0.00</strong>
+          </div>
+          <button type="submit" class="primary-action">Registrar pedido</button>
+        </div>
         <p class="status-message" id="orderStatus">El pedido se guardará con estado inicial pendiente.</p>
       </form>
     </aside>

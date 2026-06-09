@@ -3,32 +3,74 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Admin - EDValleDigital</title>
+  <title>Administración - EDValleDigital</title>
+  <meta name="description" content="Panel de administración de menú y productos para EDValleDigital.">
+  <!-- Google Fonts Link -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/css/menu.css">
 </head>
 <body data-private-page="admin">
-  <header class="simple-header">
-    <a href="/menu/" class="back-link">Menú público</a>
-    <img src="/img/logo-brand.png" alt="Ensaladas del Valle">
-    <h1>Administración de menú</h1>
+  <header class="menu-header">
+    <nav class="public-nav" aria-label="Navegación principal">
+      <a href="/menu/" id="navMenu">Menú Público</a>
+      <a href="/login/" class="active" id="navLogin">Portal Equipo</a>
+    </nav>
   </header>
 
-  <main class="private-shell">
+  <header class="simple-header">
+    <img src="/img/logo-brand.png" alt="Logotipo Ensaladas del Valle">
+    <h1>Administración de Menú</h1>
+  </header>
+
+  <main class="private-shell" id="privateShell">
+    <!-- El encabezado de usuario con sesión se renderiza dinámicamente aquí -->
+
     <section class="private-panel">
-      <span class="eyebrow">Gestión separada</span>
-      <h2>Productos</h2>
-      <form class="private-form admin-form">
-        <label>Nombre del producto<input type="text" placeholder="Bolon de queso"></label>
-        <label>Categoría<input type="text" placeholder="Bolones"></label>
-        <label>Precio<input type="number" step="0.01" placeholder="2.50"></label>
-        <label>Imagen<input type="text" placeholder="/img/platos/04-bolon-de-queso.jpg"></label>
-        <label>Descripción<textarea placeholder="Descripción corta para el comensal"></textarea></label>
-        <button type="button" class="secondary-action">Guardar producto</button>
+      <span class="eyebrow">Gestión de Productos</span>
+      <h2>Agregar o Editar Producto</h2>
+      <form class="private-form admin-form" id="adminForm">
+        <label for="adminId">
+          Código del Producto
+          <input type="text" id="adminId" placeholder="Ej. 11" required>
+        </label>
+        <label for="adminNombre">
+          Nombre del Producto
+          <input type="text" id="adminNombre" placeholder="Ej. Bolón de Queso y Tocino" required>
+        </label>
+        <label for="adminCategoria">
+          Categoría
+          <select id="adminCategoria">
+            <option value="Desayunos">Desayunos</option>
+            <option value="Bebidas">Bebidas</option>
+            <option value="Bolones">Bolones</option>
+            <option value="Ensaladas">Ensaladas</option>
+            <option value="Otros">Otros</option>
+          </select>
+        </label>
+        <label for="adminPrecio">
+          Precio (USD)
+          <input type="number" id="adminPrecio" step="0.01" placeholder="Ej. 2.50" required>
+        </label>
+        <label class="full-width" for="adminImagen">
+          URL de la Imagen
+          <input type="text" id="adminImagen" placeholder="Ej. /img/platos/04-bolon-de-queso.jpg">
+        </label>
+        <label class="full-width" for="adminDescripcion">
+          Descripción
+          <textarea id="adminDescripcion" placeholder="Describe los ingredientes y presentación para el comensal..."></textarea>
+        </label>
+        <button type="submit" class="secondary-action" id="adminGuardarBtn">Guardar Producto</button>
       </form>
+      <p class="status-message" id="adminStatus" style="margin-top: 10px;"></p>
     </section>
+
     <section class="private-panel">
-      <h2>Inventario visual</h2>
-      <div id="adminProducts"></div>
+      <h2>Inventario Visual del Menú</h2>
+      <p style="font-size: 13px; color: var(--gray-muted); margin-bottom: 12px;">
+        * Nota: Puedes cambiar la disponibilidad y el precio directamente desde la tabla y los cambios se guardarán.
+      </p>
+      <div class="private-table-wrap" id="adminProducts"></div>
     </section>
   </main>
 
