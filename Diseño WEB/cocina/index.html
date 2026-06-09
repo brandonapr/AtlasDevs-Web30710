@@ -3,21 +3,33 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cocina - EDValleDigital</title>
+  <title>Cola de Cocina - EDValleDigital</title>
+  <meta name="description" content="Cola de producción de platos para los cocineros de Ensaladas del Valle.">
+  <!-- Google Fonts Link -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="/css/menu.css">
 </head>
 <body data-private-page="cocina">
-  <header class="simple-header">
-    <a href="/menu/" class="back-link">Menú público</a>
-    <img src="/img/logo-brand.png" alt="Ensaladas del Valle">
-    <h1>Cola de producción</h1>
+  <header class="menu-header">
+    <nav class="public-nav" aria-label="Navegación principal">
+      <a href="/menu/" id="navMenu">Menú Público</a>
+      <a href="/login/" class="active" id="navLogin">Portal Equipo</a>
+    </nav>
   </header>
 
-  <main class="private-shell">
+  <header class="simple-header">
+    <img src="/img/logo-brand.png" alt="Logotipo Ensaladas del Valle">
+    <h1>Cocina y Producción</h1>
+  </header>
+
+  <main class="private-shell" id="privateShell">
+    <!-- El encabezado de usuario con sesión se renderiza dinámicamente aquí -->
+
     <section class="private-panel">
-      <span class="eyebrow">Cocina</span>
-      <h2>Pedidos para preparar</h2>
-      <div id="ordersPanel"></div>
+      <span class="eyebrow">Cola de producción</span>
+      <h2>Pedidos en Preparación</h2>
+      <div id="ordersPanel" class="private-grid"></div>
     </section>
   </main>
 
