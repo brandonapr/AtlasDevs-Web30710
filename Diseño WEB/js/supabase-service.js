@@ -7,6 +7,7 @@ const VALID_ORDER_STATES = new Set([
   "recibido",
   "en_preparacion",
   "listo",
+  "entregado",
   "cerrado",
   "cancelado"
 ]);
@@ -77,12 +78,18 @@ function normalizePedido(pedido) {
     nombre_cliente: pedido.nombre_cliente || "",
     observacion: pedido.observacion || "",
     total: Number(pedido.total || 0),
+    estado_pago: pedido.estado_pago || "pendiente",
+    pago_confirmado: pedido.pago_confirmado === true,
+    metodo_pago: pedido.metodo_pago || "",
+    monto_pagado: Number(pedido.monto_pagado || 0),
+    fecha_confirmacion_pago: pedido.fecha_confirmacion_pago || null,
     items: items.map((item) => ({
       id: item.producto_id || item.id || item.plato_id,
       nombre: item.nombre || item.plato || "",
       cantidad: Number(item.cantidad || 0),
       precio_unitario: Number(item.precio_unitario || item.precio || 0),
-      subtotal: Number(item.subtotal || 0)
+      subtotal: Number(item.subtotal || 0),
+      observacion_item: item.observacion_item === "-" ? "" : (item.observacion_item || "")
     }))
   };
 }
@@ -161,31 +168,20 @@ export async function registrarPedido(pedido) {
   }
 
   try {
-    const { error: pedidoError } = await client.from("pedidos").insert({
-      codigo: normalized.codigo,
-      estado: normalized.estado,
-      fecha_hora: normalized.fecha_hora,
-      mesa: normalized.mesa,
-      nombre_cliente: normalized.nombre_cliente,
-      observacion: normalized.observacion,
-      total: normalized.total
+    const { data, error } = await client.rpc("registrar_pedido_publico", {
+      p_codigo: normalized.codigo,
+      p_mesa: normalized.mesa,
+      p_nombre_cliente: normalized.nombre_cliente,
+      p_observacion: normalized.observacion,
+      p_items: normalized.items.map((item) => ({
+        producto_id: String(item.id).padStart(2, "0"),
+        cantidad: item.cantidad,
+        observacion_item: item.observacion_item || "-"
+      }))
     });
 
-    if (pedidoError) throw pedidoError;
-
-    const items = normalized.items.map((item) => ({
-      pedido_codigo: normalized.codigo,
-      producto_id: String(item.id).padStart(2, "0"),
-      nombre: item.nombre,
-      cantidad: item.cantidad,
-      precio_unitario: item.precio_unitario,
-      subtotal: item.subtotal
-    }));
-
-    const { error: itemError } = await client.from("pedido_items").insert(items);
-    if (itemError) throw itemError;
-
-    return { modo: "supabase", data: normalized };
+    if (error) throw error;
+    return { modo: "supabase", data: normalizePedido(data) };
   } catch (error) {
     console.warn("No se pudo guardar en Supabase, usando localStorage:", error.message);
     return {
@@ -196,6 +192,41 @@ export async function registrarPedido(pedido) {
 }
 
 export const crearPedido = registrarPedido;
+
+export async function consultarPedido(codigo) {
+  const client = await getClient();
+  if (!client) {
+    const order = readLocalOrders().find((item) => item.codigo === codigo);
+    return order ? normalizePedido(order) : null;
+  }
+
+  const { data, error } = await client.rpc("consultar_pedido_publico", { p_codigo: codigo });
+  if (error) throw error;
+  if (data) return normalizePedido(data);
+  const localOrder = readLocalOrders().find((item) => item.codigo === codigo);
+  return localOrder ? normalizePedido(localOrder) : null;
+}
+
+export async function modificarPedido(pedido) {
+  const normalized = normalizePedido(pedido);
+  const client = await getClient();
+  if (!client) return fallbackCrearPedido(normalized);
+
+  const { data, error } = await client.rpc("modificar_pedido_pendiente", {
+    p_codigo: normalized.codigo,
+    p_mesa: normalized.mesa,
+    p_nombre_cliente: normalized.nombre_cliente,
+    p_observacion: normalized.observacion,
+    p_items: normalized.items.map((item) => ({
+      producto_id: String(item.id).padStart(2, "0"),
+      cantidad: item.cantidad,
+      observacion_item: item.observacion_item || "-"
+    }))
+  });
+
+  if (error) throw error;
+  return { modo: "supabase", data: normalizePedido(data) };
+}
 
 export async function cargarPedidos(options = {}) {
   const { estados = [] } = options;
@@ -216,6 +247,11 @@ export async function cargarPedidos(options = {}) {
         nombre_cliente,
         observacion,
         total,
+        estado_pago,
+        pago_confirmado,
+        metodo_pago,
+        monto_pagado,
+        fecha_confirmacion_pago,
         created_at,
         pedido_items (
           id,
@@ -223,7 +259,8 @@ export async function cargarPedidos(options = {}) {
           nombre,
           cantidad,
           precio_unitario,
-          subtotal
+          subtotal,
+          observacion_item
         )
       `)
       .order("fecha_hora", { ascending: false });
@@ -245,7 +282,7 @@ export async function cargarPedidos(options = {}) {
 }
 
 export const cargarPedidosCaja = () =>
-  cargarPedidos({ estados: ["pendiente", "recibido", "en_preparacion", "listo"] });
+  cargarPedidos({ estados: ["pendiente", "recibido", "en_preparacion", "listo", "entregado"] });
 
 export const cargarPedidosCocina = () =>
   cargarPedidos({ estados: ["recibido", "en_preparacion"] });
@@ -265,15 +302,25 @@ export async function actualizarEstadoPedido(codigo, estado) {
     return { modo: "local", data: { codigo, estado: nextEstado } };
   }
 
-  const { data, error } = await client
-    .from("pedidos")
-    .update({ estado: nextEstado })
-    .eq("codigo", codigo)
-    .select("codigo,estado")
-    .single();
+  const { data, error } = await client.rpc("cambiar_estado_pedido", {
+    p_codigo: codigo,
+    p_nuevo_estado: nextEstado
+  });
 
   if (error) throw error;
-  return { modo: "supabase", data };
+  return { modo: "supabase", data: normalizePedido(data) };
+}
+
+export async function registrarPago(codigo, metodoPago) {
+  const client = await getClient();
+  if (!client) throw new Error("El pago requiere conexion con Supabase.");
+
+  const { data, error } = await client.rpc("registrar_pago_pedido", {
+    p_codigo: codigo,
+    p_metodo_pago: metodoPago
+  });
+  if (error) throw error;
+  return { modo: "supabase", data: normalizePedido(data) };
 }
 
 export async function actualizarProducto(id, cambios) {
@@ -298,6 +345,30 @@ export async function actualizarProducto(id, cambios) {
 
   if (error) throw error;
   return { modo: "supabase", data: normalizeProducto(data) };
+}
+
+export async function guardarProducto(producto) {
+  const client = await getClient();
+  if (!client) throw new Error("La gestion del menu requiere conexion con Supabase.");
+
+  const payload = normalizeProducto(producto);
+  const { data, error } = await client
+    .from("productos")
+    .upsert(payload, { onConflict: "id" })
+    .select()
+    .single();
+
+  if (error) throw error;
+  return { modo: "supabase", data: normalizeProducto(data) };
+}
+
+export async function eliminarProducto(id) {
+  const client = await getClient();
+  if (!client) throw new Error("La gestion del menu requiere conexion con Supabase.");
+
+  const { error } = await client.from("productos").delete().eq("id", String(id).padStart(2, "0"));
+  if (error) throw error;
+  return { modo: "supabase", data: { id: String(id).padStart(2, "0") } };
 }
 
 export const activarProducto = (id, disponible) =>
@@ -348,4 +419,11 @@ export async function iniciarSesion(email, password) {
 
   const perfil = await cargarPerfilActual();
   return { modo: "supabase", data, perfil };
+}
+
+export async function cerrarSesion() {
+  const client = await getClient();
+  if (!client) return;
+  const { error } = await client.auth.signOut();
+  if (error) throw error;
 }

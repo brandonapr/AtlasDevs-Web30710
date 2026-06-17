@@ -33,6 +33,17 @@
     </section>
   </main>
 
+  <dialog class="account-dialog" id="accountDialog" aria-labelledby="accountTitle">
+    <div class="account-dialog-header">
+      <h2 id="accountTitle">Cuenta del pedido</h2>
+      <button type="button" onclick="this.closest('dialog').close()">Cerrar</button>
+    </div>
+    <div id="accountContent"></div>
+    <div class="account-dialog-actions">
+      <button class="secondary-action" type="button" onclick="window.print()">Imprimir cuenta</button>
+    </div>
+  </dialog>
+
   <script type="module" src="/js/private.js"></script>
 </body>
 </html>

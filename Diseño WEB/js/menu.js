@@ -1,6 +1,13 @@
-import { cargarCategorias, cargarProductos, registrarPedido } from "/js/supabase-service.js";
+import {
+  cargarCategorias,
+  cargarProductos,
+  consultarPedido,
+  modificarPedido,
+  registrarPedido
+} from "/js/supabase-service.js";
 
 const STORAGE_CART = "edv_cart";
+const STORAGE_ORDER_REFS = "edv_order_refs";
 
 const money = new Intl.NumberFormat("es-EC", {
   style: "currency",
@@ -13,7 +20,8 @@ const state = {
   categoria: "Todos",
   busqueda: "",
   carrito: readCart(),
-  mesa: detectMesa()
+  mesa: detectMesa(),
+  editingCode: new URLSearchParams(window.location.search).get("editar")
 };
 
 const productsGrid = document.querySelector("#productsGrid");
@@ -41,6 +49,12 @@ function readCart() {
 
 function saveCart() {
   localStorage.setItem(STORAGE_CART, JSON.stringify(state.carrito));
+}
+
+function rememberOrder(codigo) {
+  const references = JSON.parse(localStorage.getItem(STORAGE_ORDER_REFS) || "[]");
+  const next = [codigo, ...references.filter((item) => item !== codigo)].slice(0, 10);
+  localStorage.setItem(STORAGE_ORDER_REFS, JSON.stringify(next));
 }
 
 function detectMesa() {
@@ -292,9 +306,33 @@ function buildOrder() {
       nombre: item.personalizacion ? `${item.nombre} (${item.personalizacion})` : item.nombre,
       cantidad: item.cantidad,
       precio_unitario: item.precio,
-      subtotal: Number((item.precio * item.cantidad).toFixed(2))
+      subtotal: Number((item.precio * item.cantidad).toFixed(2)),
+      observacion_item: item.personalizacion || ""
     }))
   };
+}
+
+async function loadOrderForEditing() {
+  if (!state.editingCode) return;
+
+  const order = await consultarPedido(state.editingCode);
+  if (!order) throw new Error("No se encontro el pedido solicitado.");
+  if (order.estado !== "pendiente") throw new Error("Este pedido ya no puede modificarse porque salio de Pendiente.");
+
+  state.carrito = order.items.map((item) => ({
+    id: String(item.id).padStart(2, "0"),
+    nombre: item.nombre,
+    precio: item.precio_unitario,
+    cantidad: item.cantidad,
+    personalizacion: item.observacion_item || ""
+  }));
+  state.mesa = order.mesa;
+  document.querySelector("#clienteNombre").value = order.nombre_cliente;
+  document.querySelector("#observacionInput").value = order.observacion.replace(/(?:^| \| )ALERGIAS: [^|]+/, "").trim();
+  const allergyMatch = order.observacion.match(/ALERGIAS:\s*([^|]+)/);
+  document.querySelector("#alergiasInput").value = allergyMatch?.[1]?.trim() || "";
+  document.querySelector(".primary-action").textContent = "Guardar modificacion";
+  setStatus(`Editando ${order.codigo}. Solo se guardara mientras siga pendiente.`);
 }
 
 function setStatus(message, type = "") {
@@ -358,21 +396,29 @@ checkoutForm.addEventListener("submit", async (event) => {
   }
 
   const order = buildOrder();
+  if (state.editingCode) order.codigo = state.editingCode;
   if (!order.nombre_cliente || !order.mesa) {
     setStatus("Completa nombre o referencia y mesa antes de registrar.", "error");
     return;
   }
 
   try {
-    const result = await registrarPedido(order);
-    localStorage.setItem("edv_last_order", JSON.stringify(order));
+    const result = state.editingCode ? await modificarPedido(order) : await registrarPedido(order);
+    const savedOrder = result.data || order;
+    localStorage.setItem("edv_last_order", JSON.stringify(savedOrder));
+    rememberOrder(order.codigo);
     state.carrito = [];
     saveCart();
     checkoutForm.reset();
     syncMesa();
     updateAll();
     cartPanel.classList.remove("open");
-    setStatus(`Pedido ${order.codigo} registrado en modo ${result.modo}. Estado: pendiente.`, "ok");
+    setStatus(
+      state.editingCode
+        ? `Pedido ${order.codigo} modificado correctamente.`
+        : `Pedido ${order.codigo} registrado. Estado: pendiente.`,
+      "ok"
+    );
     window.location.href = "/orden/";
   } catch (error) {
     setStatus(`No se pudo registrar el pedido: ${error.message}`, "error");
@@ -382,6 +428,7 @@ checkoutForm.addEventListener("submit", async (event) => {
 async function init() {
   state.productos = await cargarProductos();
   state.categorias = cargarCategorias(state.productos);
+  await loadOrderForEditing();
   reconcileCartWithProducts();
   syncMesa();
   renderCategories();

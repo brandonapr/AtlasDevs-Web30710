@@ -1,13 +1,17 @@
 import {
   actualizarEstadoPedido,
+  actualizarProducto,
   cargarPedidos,
   cargarPedidosCaja,
   cargarPedidosCocina,
   cargarPedidosMesera,
-  cargarProductos,
   cargarPerfilActual,
+  cargarProductos,
+  cerrarSesion,
+  eliminarProducto,
+  guardarProducto,
   iniciarSesion,
-  actualizarProducto
+  registrarPago
 } from "/js/supabase-service.js";
 
 const SESSION_KEY = "edv_private_session";
@@ -18,6 +22,25 @@ const ROLE_ROUTES = {
   cocinero: "cocina",
   mesera: "mesera"
 };
+
+let currentOrders = [];
+let currentProducts = [];
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function money(value) {
+  return new Intl.NumberFormat("es-EC", {
+    style: "currency",
+    currency: "USD"
+  }).format(Number(value || 0));
+}
 
 function getSession() {
   try {
@@ -35,88 +58,53 @@ function clearSession() {
   localStorage.removeItem(SESSION_KEY);
 }
 
+function getRequestedPath() {
+  const next = new URLSearchParams(window.location.search).get("next");
+  return next?.startsWith("/") ? next : null;
+}
+
 async function requireSession() {
-  if (privatePage === "login") return null;
   const session = getSession();
   if (!session) {
     window.location.href = `/login/?next=/${privatePage}/`;
     return null;
   }
 
-  let perfil = null;
   try {
-    perfil = await cargarPerfilActual();
+    const perfil = await cargarPerfilActual();
+    const allowedPage = ROLE_ROUTES[perfil?.rol];
+    if (!allowedPage) throw new Error("Perfil sin rol autorizado.");
+    if (allowedPage !== privatePage) {
+      window.location.href = `/${allowedPage}/`;
+      return null;
+    }
+
+    const verified = {
+      ...session,
+      email: perfil.email,
+      name: perfil.nombre,
+      role: perfil.rol,
+      mode: "supabase"
+    };
+    setSession(verified);
+    return verified;
   } catch {
     clearSession();
     window.location.href = `/login/?next=/${privatePage}/`;
     return null;
   }
-
-  const effectiveSession = {
-    ...session,
-    email: perfil.email,
-    name: perfil.nombre,
-    role: perfil.rol,
-    mode: "supabase"
-  };
-  const allowedPage = ROLE_ROUTES[effectiveSession.role];
-
-  if (allowedPage && allowedPage !== privatePage) {
-    window.location.href = `/${allowedPage}/`;
-    return null;
-  }
-
-  if (!allowedPage) {
-    clearSession();
-    window.location.href = `/login/?next=/${privatePage}/`;
-    return null;
-  }
-
-  setSession(effectiveSession);
-  return effectiveSession;
-}
-
-function getRequestedPath() {
-  const params = new URLSearchParams(window.location.search);
-  const next = params.get("next");
-  return next && next.startsWith("/") ? next : null;
-}
-
-function money(value) {
-  return new Intl.NumberFormat("es-EC", {
-    style: "currency",
-    currency: "USD"
-  }).format(Number(value || 0));
-}
-
-function getNextAction(order) {
-  const actions = {
-    caja: {
-      pendiente: { estado: "recibido", label: "Enviar a cocina" },
-      listo: { estado: "cerrado", label: "Cerrar ticket" }
-    },
-    cocina: {
-      recibido: { estado: "en_preparacion", label: "Preparar" },
-      en_preparacion: { estado: "listo", label: "Marcar listo" }
-    },
-    mesera: {
-      listo: { estado: "cerrado", label: "Entregado" }
-    }
-  };
-
-  return actions[privatePage]?.[order.estado] || null;
 }
 
 async function loadRoles() {
   const response = await fetch("/data/roles.json");
-  const data = await response.json();
-  return data.rolesPrivados;
+  if (!response.ok) throw new Error("No se pudo cargar la matriz de roles.");
+  return (await response.json()).rolesPrivados;
 }
 
 async function loadTestUsers() {
   const response = await fetch("/data/usuarios-prueba.json");
-  const data = await response.json();
-  return data.usuarios;
+  if (!response.ok) throw new Error("No se pudo cargar la matriz de usuarios.");
+  return (await response.json()).usuarios;
 }
 
 function normalizeLogin(value) {
@@ -127,258 +115,35 @@ function normalizeLogin(value) {
     .trim();
 }
 
-async function loadOrdersForPage() {
-  if (privatePage === "caja") return cargarPedidosCaja();
-  if (privatePage === "cocina") return cargarPedidosCocina();
-  if (privatePage === "mesera") return cargarPedidosMesera();
-  return cargarPedidos();
-}
-
-/* RENDERIZADO DE TICKETS DE COMANDA COHERENTES */
-async function renderOrders() {
-  const panel = document.querySelector("#ordersPanel");
-  if (!panel) return;
-
-  const orders = await loadOrdersForPage();
-  if (orders.length === 0) {
-    panel.innerHTML = `<p class="status-message">No hay pedidos pendientes en este momento.</p>`;
-    return;
-  }
-
-  panel.innerHTML = orders.map((order) => {
-    const action = getNextAction(order);
-    const estadoLimpio = order.estado.replaceAll("_", " ");
-    const estadoClase = order.estado.toLowerCase();
-
-    // Custom layout options for Cashier/Caja
-    let paymentOptionMarkup = "";
-    if (privatePage === "caja" && order.estado === "listo") {
-      paymentOptionMarkup = `
-        <div style="margin: 12px 0; background: var(--cream-light); padding: 10px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-          <label style="display:block; font-size:12px; margin-bottom:4px; font-weight:700;">Método de Pago Físico (RF07):</label>
-          <select id="pay-method-${order.codigo}" style="width: 100%; padding: 6px; font-size:13px; border-radius: var(--radius-sm); border: 1px solid var(--border-color);">
-            <option value="Efectivo">Efectivo</option>
-            <option value="Tarjeta">Tarjeta de Crédito/Débito</option>
-            <option value="Transferencia">Transferencia Bancaria</option>
-          </select>
-        </div>
-      `;
-    }
-
-    return `
-      <article class="order-summary">
-        <h3>
-          <span>Código: ${order.codigo}</span>
-          <span class="order-status-pill ${estadoClase}">${estadoLimpio}</span>
-        </h3>
-        <div class="order-info-grid">
-          <div><strong>Mesa:</strong> ${order.mesa || "Sin mesa"}</div>
-          <div><strong>Cliente:</strong> ${order.nombre_cliente || "Sin referencia"}</div>
-          <div style="grid-column: span 2; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-            <span><strong>Fecha:</strong> ${new Date(order.fecha_hora).toLocaleDateString("es-EC")}</span>
-            <span><strong>Hora:</strong> <span class="order-time-tag">${new Date(order.fecha_hora).toLocaleTimeString("es-EC", { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span></span>
-          </div>
-        </div>
-        ${(() => {
-          if (!order.observacion) return "";
-          const isAllergies = order.observacion.includes("ALERGIAS:");
-          const style = isAllergies ? 'color: var(--soft-red); font-weight: 800; font-size: 13px;' : 'font-size: 13px; color: var(--main-color);';
-          const displayObs = order.observacion.replaceAll("ALERGIAS:", "⚠️ ALERGIAS:");
-          return `<p style="margin: 8px 0; ${style}"><strong>Obs:</strong> <em>${displayObs}</em></p>`;
-        })()}
-        <ul aria-label="Detalle de platos">
-          ${(order.items || []).map((item) => `
-            <li><strong>${item.cantidad}x</strong> ${item.nombre || item.plato} <span style="float:right; color:var(--gray-muted);">${money(item.subtotal)}</span></li>
-          `).join("")}
-        </ul>
-        
-        <div class="order-total-block">
-          <span>Total a cobrar:</span>
-          <strong>${money(order.total)}</strong>
-        </div>
-
-        ${paymentOptionMarkup}
-
-        ${action ? `
-          <button class="${action.estado === 'cerrado' ? 'primary-action' : 'secondary-action'}" 
-                  type="button" 
-                  data-order-action="${action.estado}" 
-                  data-codigo="${order.codigo}">
-            ${action.label}
-          </button>
-        ` : ""}
-      </article>
-    `;
-  }).join("");
-}
-
-/* RENDERIZADO DE LA TABLA DE ADMINISTRACIÓN CON INTERACTIVIDAD */
-async function renderAdminProducts() {
-  const container = document.querySelector("#adminProducts");
-  if (!container) return;
-
-  const products = await cargarProductos();
-
-  container.innerHTML = `
-    <table class="private-table">
-      <thead>
-        <tr>
-          <th>Código</th>
-          <th>Nombre del Producto</th>
-          <th>Categoría</th>
-          <th>Precio</th>
-          <th>Estado</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        ${products.map((product) => `
-          <tr>
-            <td><strong>${product.id}</strong></td>
-            <td>${product.nombre}</td>
-            <td>${product.categoria}</td>
-            <td>
-              <input type="number" step="0.01" value="${product.precio}" 
-                     class="table-price-input" 
-                     data-id="${product.id}" 
-                     style="width: 75px; padding: 4px; border: 1px solid var(--border-color); border-radius: 4px; margin: 0;">
-            </td>
-            <td>
-              <span class="product-status ${product.disponible ? '' : 'off'}" style="position:relative; top:0; right:0; display:inline-block;">
-                ${product.disponible ? 'Activo' : 'Inactivo'}
-              </span>
-            </td>
-            <td>
-              <button class="secondary-action qty-button" 
-                      type="button" 
-                      data-admin-toggle-id="${product.id}" 
-                      data-disponible="${product.disponible}" 
-                      style="width:auto; height:auto; padding: 6px 12px; border-radius: 20px; font-size:12px;">
-                Alternar
-              </button>
-            </td>
-          </tr>
-        `).join("")}
-      </tbody>
-    </table>
-  `;
-
-  // Añadir Listeners de cambios de precio en la tabla
-  document.querySelectorAll(".table-price-input").forEach((input) => {
-    input.addEventListener("change", async (e) => {
-      const id = e.target.dataset.id;
-      const nuevoPrecio = parseFloat(e.target.value);
-      if (isNaN(nuevoPrecio) || nuevoPrecio < 0) return;
-
-      try {
-        const res = await actualizarProducto(id, { precio: nuevoPrecio });
-        console.log(`Precio cambiado a ${nuevoPrecio} para producto ${id} en modo ${res.modo}`);
-      } catch (err) {
-        alert(`Error al actualizar precio: ${err.message}`);
-      }
-    });
-  });
-
-  // Añadir Listeners de toggles de disponibilidad
-  document.querySelectorAll("[data-admin-toggle-id]").forEach((btn) => {
-    btn.addEventListener("click", async (e) => {
-      const id = btn.dataset.adminToggleId;
-      const disponibleActual = btn.dataset.disponible === "true";
-      
-      try {
-        await actualizarProducto(id, { disponible: !disponibleActual });
-        await renderAdminProducts();
-      } catch (err) {
-        alert(`Error al actualizar disponibilidad: ${err.message}`);
-      }
-    });
-  });
-}
-
-/* REGISTRO DE FORMULARIO DE EDICIÓN ADMIN */
-function setupAdminForm() {
-  const form = document.querySelector("#adminForm");
-  if (!form) return;
-
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    const id = document.querySelector("#adminId").value.trim();
-    const nombre = document.querySelector("#adminNombre").value.trim();
-    const categoria = document.querySelector("#adminCategoria").value;
-    const precio = parseFloat(document.querySelector("#adminPrecio").value);
-    const imagen = document.querySelector("#adminImagen").value.trim() || "/img/platos/placeholder-plato.svg";
-    const descripcion = document.querySelector("#adminDescripcion").value.trim();
-
-    const status = document.querySelector("#adminStatus");
-    status.textContent = "Guardando cambios...";
-    status.className = "status-message";
-
-    try {
-      const result = await actualizarProducto(id, {
-        nombre,
-        categoria,
-        precio,
-        imagen,
-        descripcion,
-        disponible: true
-      });
-      
-      status.textContent = `¡Producto ${id} guardado con éxito en modo ${result.modo}!`;
-      status.className = "status-message ok";
-      form.reset();
-      await renderAdminProducts();
-    } catch (err) {
-      status.textContent = `Error al guardar: ${err.message}`;
-      status.className = "status-message error";
-    }
-  });
-}
-
-/* SESIÓN DE LOGIN */
-async function setupLogin() {
+function setupLogin() {
   const form = document.querySelector("#loginForm");
   const status = document.querySelector("#loginStatus");
   const loginData = Promise.all([loadRoles(), loadTestUsers()]);
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-
     const usuario = document.querySelector("#usuarioInput").value.trim();
     const password = document.querySelector("#passwordInput").value;
-    
+
     if (!usuario || !password) {
       status.textContent = "Completa usuario y contraseña.";
       status.className = "status-message error";
       return;
     }
 
-    status.textContent = "Preparando acceso seguro...";
+    status.textContent = "Validando acceso con Supabase...";
     status.className = "status-message";
 
     try {
-      const [roles, testUsers] = await loginData;
-      const loginUser = testUsers.find(
-        (user) =>
-          normalizeLogin(user.usuario) === normalizeLogin(usuario) ||
-          normalizeLogin(user.email) === normalizeLogin(usuario)
+      const [roles, users] = await loginData;
+      const loginUser = users.find((user) =>
+        [user.usuario, user.email].some((value) => normalizeLogin(value) === normalizeLogin(usuario))
       );
+      if (!loginUser) throw new Error("Usuario no registrado.");
 
-      if (!loginUser) {
-        status.textContent = "Usuario no registrado para este prototipo.";
-        status.className = "status-message error";
-        return;
-      }
-
-      status.textContent = "Validando acceso con Supabase...";
       const auth = await iniciarSesion(loginUser.email, password);
       const assignedRole = roles.find((role) => role.id === auth.perfil?.rol);
-
-      if (!assignedRole) {
-        clearSession();
-        status.textContent = "El usuario no tiene un rol interno autorizado.";
-        status.className = "status-message error";
-        return;
-      }
+      if (!assignedRole) throw new Error("El usuario no tiene un rol interno autorizado.");
 
       setSession({
         usuario: loginUser.usuario,
@@ -389,92 +154,296 @@ async function setupLogin() {
         loginAt: new Date().toISOString()
       });
 
-      status.textContent = `¡Bienvenido/a, ${auth.perfil.nombre}! Redirigiendo...`;
+      status.textContent = `Bienvenido/a, ${auth.perfil.nombre}. Rol: ${assignedRole.nombre}.`;
       status.className = "status-message ok";
 
       const requestedPath = getRequestedPath();
       const requestedPage = requestedPath?.replace(/^\/+/, "").split("/")[0];
       const allowedPage = ROLE_ROUTES[auth.perfil.rol];
-      const targetPath = requestedPage === allowedPage ? requestedPath : `${assignedRole.ruta}/`;
-      
-      setTimeout(() => {
-        window.location.href = targetPath;
-      }, 800);
+      const target = requestedPage === allowedPage ? requestedPath : `${assignedRole.ruta}/`;
+      setTimeout(() => { window.location.href = target; }, 700);
     } catch (error) {
       clearSession();
       status.textContent = `Acceso denegado: ${error.message}`;
       status.className = "status-message error";
     }
   });
+
+  form.dataset.ready = "true";
 }
 
-/* RENDERIZADO DINÁMICO DEL ENCABEZADO DE USUARIO */
 function renderUserHeader(session) {
   const shell = document.querySelector("#privateShell");
-  if (!shell) return;
-
-  const headerDiv = document.createElement("div");
-  headerDiv.className = "private-user-header";
-  headerDiv.innerHTML = `
-    <div class="user-info">
-      Sesión: <strong>${session.name}</strong> | Rol: <span>${session.role.toUpperCase()}</span>
-    </div>
-    <button id="logoutBtn" type="button">Cerrar Sesión</button>
+  const header = document.createElement("div");
+  header.className = "private-user-header";
+  header.innerHTML = `
+    <div class="user-info">Bienvenido/a, <strong>${escapeHtml(session.name)}</strong> · Rol: ${escapeHtml(session.role)}</div>
+    <button id="logoutBtn" type="button">Cerrar sesión</button>
   `;
+  shell.prepend(header);
 
-  shell.insertBefore(headerDiv, shell.firstChild);
-
-  document.getElementById("logoutBtn")?.addEventListener("click", () => {
+  document.querySelector("#logoutBtn").addEventListener("click", async () => {
+    await cerrarSesion().catch(() => {});
     clearSession();
     window.location.href = "/login/";
   });
 }
 
-/* MANEJADOR DE CLICS EN BOTONES DE COMANDA */
-document.addEventListener("click", async (event) => {
-  const button = event.target.closest("[data-order-action]");
-  if (!button) return;
+function getNextAction(order) {
+  const actions = {
+    caja: { pendiente: { estado: "recibido", label: "Enviar a cocina" } },
+    cocina: {
+      recibido: { estado: "en_preparacion", label: "Iniciar preparación" },
+      en_preparacion: { estado: "listo", label: "Marcar como listo" }
+    },
+    mesera: { listo: { estado: "entregado", label: "Confirmar entrega" } }
+  };
+  return actions[privatePage]?.[order.estado] || null;
+}
 
-  const codigo = button.dataset.codigo;
-  const nextEstado = button.dataset.orderAction;
+async function loadOrdersForPage() {
+  if (privatePage === "caja") return cargarPedidosCaja();
+  if (privatePage === "cocina") return cargarPedidosCocina();
+  if (privatePage === "mesera") return cargarPedidosMesera();
+  return cargarPedidos();
+}
 
-  // Si es caja cobrando un ticket listo, mostramos detalle de pago físico
-  if (privatePage === "caja" && nextEstado === "cerrado") {
-    const payMethodSelect = document.getElementById(`pay-method-${codigo}`);
-    const payMethod = payMethodSelect ? payMethodSelect.value : "Efectivo";
-    if (!confirm(`¿Confirmar cobro y cierre de ticket para el pedido ${codigo} con método: ${payMethod}?`)) {
-      return;
-    }
-  }
+function renderOrderCard(order) {
+  const action = getNextAction(order);
+  const canPay = privatePage === "caja" && order.estado === "entregado" && !order.pago_confirmado;
+  const items = order.items.map((item) => `
+    <li>
+      <span><strong>${item.cantidad}x</strong> ${escapeHtml(item.nombre)}</span>
+      ${item.observacion_item ? `<small>${escapeHtml(item.observacion_item)}</small>` : ""}
+      <span>${money(item.subtotal)}</span>
+    </li>
+  `).join("");
 
+  return `
+    <article class="order-summary" data-order-card="${escapeHtml(order.codigo)}">
+      <h3>
+        <span>${escapeHtml(order.codigo)}</span>
+        <span class="order-status-pill ${escapeHtml(order.estado)}">${escapeHtml(order.estado.replaceAll("_", " "))}</span>
+      </h3>
+      <div class="order-info-grid">
+        <div><strong>Mesa:</strong> ${escapeHtml(order.mesa || "Sin mesa")}</div>
+        <div><strong>Cliente:</strong> ${escapeHtml(order.nombre_cliente || "Sin referencia")}</div>
+        <div><strong>Registrado:</strong> ${new Date(order.fecha_hora).toLocaleString("es-EC")}</div>
+        <div><strong>Pago:</strong> ${order.pago_confirmado ? `Pagado (${escapeHtml(order.metodo_pago)})` : "Pendiente"}</div>
+      </div>
+      ${order.observacion ? `<p class="order-observation"><strong>Observación:</strong> ${escapeHtml(order.observacion)}</p>` : ""}
+      <ul aria-label="Detalle de platos">${items}</ul>
+      <div class="order-total-block"><span>Total</span><strong>${money(order.total)}</strong></div>
+      <div class="order-actions">
+        ${privatePage === "caja" ? `<button class="secondary-action" type="button" data-account-code="${escapeHtml(order.codigo)}">Generar cuenta</button>` : ""}
+        ${action ? `<button class="secondary-action" type="button" data-order-action="${action.estado}" data-codigo="${escapeHtml(order.codigo)}">${action.label}</button>` : ""}
+      </div>
+      ${canPay ? `
+        <div class="payment-controls">
+          <label for="pay-method-${escapeHtml(order.codigo)}">Método de pago</label>
+          <select id="pay-method-${escapeHtml(order.codigo)}">
+            <option value="efectivo">Efectivo</option>
+            <option value="tarjeta">Tarjeta</option>
+            <option value="transferencia">Transferencia</option>
+          </select>
+          <button class="primary-action" type="button" data-pay-code="${escapeHtml(order.codigo)}">Registrar pago</button>
+        </div>
+      ` : ""}
+    </article>
+  `;
+}
+
+async function renderOrders() {
+  const panel = document.querySelector("#ordersPanel");
+  if (!panel) return;
+  currentOrders = await loadOrdersForPage();
+  panel.innerHTML = currentOrders.length
+    ? currentOrders.map(renderOrderCard).join("")
+    : `<p class="status-message">No hay pedidos pendientes para este rol.</p>`;
+}
+
+function openAccount(codigo) {
+  const order = currentOrders.find((item) => item.codigo === codigo);
+  const dialog = document.querySelector("#accountDialog");
+  if (!order || !dialog) return;
+
+  dialog.querySelector("#accountContent").innerHTML = `
+    <div class="account-brand"><strong>Ensaladas del Valle</strong><span>Cuenta de consumo</span></div>
+    <p><strong>Pedido:</strong> ${escapeHtml(order.codigo)}</p>
+    <p><strong>Mesa:</strong> ${escapeHtml(order.mesa)} · <strong>Cliente:</strong> ${escapeHtml(order.nombre_cliente)}</p>
+    <table class="account-table">
+      <thead><tr><th>Cant.</th><th>Producto</th><th>Subtotal</th></tr></thead>
+      <tbody>${order.items.map((item) => `
+        <tr><td>${item.cantidad}</td><td>${escapeHtml(item.nombre)}</td><td>${money(item.subtotal)}</td></tr>
+      `).join("")}</tbody>
+      <tfoot><tr><th colspan="2">Total</th><th>${money(order.total)}</th></tr></tfoot>
+    </table>
+    <p class="account-note">Precios finales. Impuestos incluidos.</p>
+  `;
+  dialog.showModal();
+}
+
+async function handleOrderAction(button) {
   button.disabled = true;
-  button.textContent = "Actualizando...";
-
   try {
-    await actualizarEstadoPedido(codigo, nextEstado);
+    await actualizarEstadoPedido(button.dataset.codigo, button.dataset.orderAction);
     await renderOrders();
   } catch (error) {
     button.disabled = false;
     button.textContent = `Error: ${error.message}`;
   }
+}
+
+async function handlePayment(button) {
+  const codigo = button.dataset.payCode;
+  const method = document.querySelector(`#pay-method-${CSS.escape(codigo)}`).value;
+  button.disabled = true;
+  button.textContent = "Registrando...";
+  try {
+    await registrarPago(codigo, method);
+    await renderOrders();
+  } catch (error) {
+    button.disabled = false;
+    button.textContent = `Error: ${error.message}`;
+  }
+}
+
+function productRow(product) {
+  return `
+    <tr>
+      <td><strong>${escapeHtml(product.id)}</strong></td>
+      <td>${escapeHtml(product.nombre)}</td>
+      <td>${escapeHtml(product.categoria)}</td>
+      <td>${money(product.precio)}</td>
+      <td><span class="product-status ${product.disponible ? "" : "off"}">${product.disponible ? "Activo" : "Inactivo"}</span></td>
+      <td class="admin-actions">
+        <button type="button" data-admin-edit="${escapeHtml(product.id)}">Editar</button>
+        <button type="button" data-admin-toggle="${escapeHtml(product.id)}">${product.disponible ? "Desactivar" : "Activar"}</button>
+        <button type="button" class="danger-action" data-admin-delete="${escapeHtml(product.id)}">Eliminar</button>
+      </td>
+    </tr>
+  `;
+}
+
+async function renderAdminProducts() {
+  const container = document.querySelector("#adminProducts");
+  if (!container) return;
+  currentProducts = await cargarProductos();
+  container.innerHTML = `
+    <table class="private-table">
+      <thead><tr><th>Código</th><th>Producto</th><th>Categoría</th><th>Precio</th><th>Estado</th><th>Acciones</th></tr></thead>
+      <tbody>${currentProducts.map(productRow).join("")}</tbody>
+    </table>
+  `;
+}
+
+function fillAdminForm(product) {
+  document.querySelector("#adminId").value = product.id;
+  document.querySelector("#adminNombre").value = product.nombre;
+  document.querySelector("#adminCategoria").value = product.categoria;
+  document.querySelector("#adminPrecio").value = product.precio;
+  document.querySelector("#adminImagen").value = product.imagen;
+  document.querySelector("#adminDescripcion").value = product.descripcion;
+  document.querySelector("#adminId").readOnly = true;
+  document.querySelector("#adminGuardarBtn").textContent = "Actualizar producto";
+  document.querySelector("#adminForm").scrollIntoView({ behavior: "smooth" });
+}
+
+function resetAdminForm() {
+  const form = document.querySelector("#adminForm");
+  form.reset();
+  document.querySelector("#adminId").readOnly = false;
+  document.querySelector("#adminGuardarBtn").textContent = "Guardar producto";
+}
+
+function setupAdminForm() {
+  const form = document.querySelector("#adminForm");
+  if (!form) return;
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const status = document.querySelector("#adminStatus");
+    status.textContent = "Guardando producto...";
+    status.className = "status-message";
+
+    try {
+      const result = await guardarProducto({
+        id: document.querySelector("#adminId").value.trim(),
+        nombre: document.querySelector("#adminNombre").value.trim(),
+        categoria: document.querySelector("#adminCategoria").value,
+        precio: Number(document.querySelector("#adminPrecio").value),
+        imagen: document.querySelector("#adminImagen").value.trim(),
+        descripcion: document.querySelector("#adminDescripcion").value.trim(),
+        disponible: true,
+        destacado: false,
+        etiquetas: []
+      });
+      status.textContent = `Producto ${result.data.id} guardado correctamente.`;
+      status.className = "status-message ok";
+      resetAdminForm();
+      await renderAdminProducts();
+    } catch (error) {
+      status.textContent = `No se pudo guardar: ${error.message}`;
+      status.className = "status-message error";
+    }
+  });
+
+  document.querySelector("#adminCancelBtn")?.addEventListener("click", resetAdminForm);
+}
+
+async function handleAdminAction(button) {
+  const id = button.dataset.adminEdit || button.dataset.adminToggle || button.dataset.adminDelete;
+  const product = currentProducts.find((item) => item.id === id);
+  if (!product) return;
+
+  if (button.dataset.adminEdit) {
+    fillAdminForm(product);
+    return;
+  }
+
+  if (button.dataset.adminToggle) {
+    await actualizarProducto(id, { disponible: !product.disponible });
+    await renderAdminProducts();
+    return;
+  }
+
+  if (button.dataset.adminDelete && window.confirm(`¿Eliminar ${product.nombre} del menú?`)) {
+    await eliminarProducto(id);
+    await renderAdminProducts();
+  }
+}
+
+document.addEventListener("click", async (event) => {
+  const orderAction = event.target.closest("[data-order-action]");
+  if (orderAction) return handleOrderAction(orderAction);
+
+  const accountButton = event.target.closest("[data-account-code]");
+  if (accountButton) return openAccount(accountButton.dataset.accountCode);
+
+  const paymentButton = event.target.closest("[data-pay-code]");
+  if (paymentButton) return handlePayment(paymentButton);
+
+  const adminButton = event.target.closest("[data-admin-edit], [data-admin-toggle], [data-admin-delete]");
+  if (adminButton) return handleAdminAction(adminButton);
 });
 
 async function init() {
   if (privatePage === "login") {
-    await setupLogin();
+    setupLogin();
     return;
   }
 
   const session = await requireSession();
   if (!session) return;
-
-  // Renderizar cabecera de usuario
   renderUserHeader(session);
-
-  // Cargar elementos de la vista activa
-  await renderOrders();
-  await renderAdminProducts();
+  await Promise.all([renderOrders(), renderAdminProducts()]);
   setupAdminForm();
+
+  if (["caja", "cocina", "mesera"].includes(privatePage)) {
+    setInterval(() => renderOrders().catch(() => {}), 12000);
+  }
 }
 
-init();
+init().catch((error) => {
+  const shell = document.querySelector("#privateShell") || document.querySelector("main");
+  shell.insertAdjacentHTML("afterbegin", `<p class="status-message error">${escapeHtml(error.message)}</p>`);
+});

@@ -1,77 +1,101 @@
-import { cargarProductos } from "/js/supabase-service.js";
+import { consultarPedido } from "/js/supabase-service.js";
 
+const STORAGE_ORDER_REFS = "edv_order_refs";
 const ordersList = document.querySelector("#ordersList");
-let productMap = new Map();
-
-function readOrders() {
-  const orders = JSON.parse(localStorage.getItem("edv_pedidos_demo") || "[]");
-  const lastOrder = JSON.parse(localStorage.getItem("edv_last_order") || "null");
-
-  if (lastOrder && !orders.some((order) => order.codigo === lastOrder.codigo)) {
-    orders.push(lastOrder);
-  }
-
-  const migrated = orders.map((order) => ({
-    ...order,
-    items: (order.items || []).map((item) => {
-      const product = productMap.get(String(item.id).padStart(2, "0"));
-      return product ? { ...item, nombre: product.nombre } : item;
-    })
-  }));
-
-  localStorage.setItem("edv_pedidos_demo", JSON.stringify(migrated));
-  return migrated.reverse();
-}
 
 function money(value) {
   return new Intl.NumberFormat("es-EC", {
     style: "currency",
     currency: "USD"
-  }).format(value);
+  }).format(Number(value || 0));
+}
+
+function escapeHtml(value) {
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function readReferences() {
+  const references = JSON.parse(localStorage.getItem(STORAGE_ORDER_REFS) || "[]");
+  const lastOrder = JSON.parse(localStorage.getItem("edv_last_order") || "null");
+  if (lastOrder?.codigo && !references.includes(lastOrder.codigo)) references.unshift(lastOrder.codigo);
+  return [...new Set(references)].slice(0, 10);
+}
+
+async function loadKnownOrders() {
+  const references = readReferences();
+  const orders = await Promise.all(
+    references.map(async (codigo) => {
+      try {
+        return await consultarPedido(codigo);
+      } catch {
+        return null;
+      }
+    })
+  );
+  return orders.filter(Boolean);
+}
+
+function renderOrder(order) {
+  const estadoLimpio = order.estado.replaceAll("_", " ");
+  const paidLabel = order.pago_confirmado
+    ? `<span class="payment-badge paid">Pagado: ${escapeHtml(order.metodo_pago)}</span>`
+    : `<span class="payment-badge">Pago pendiente</span>`;
+
+  return `
+    <article class="order-summary">
+      <h3>
+        <span>Codigo: ${escapeHtml(order.codigo)}</span>
+        <span class="order-status-pill ${escapeHtml(order.estado)}">${escapeHtml(estadoLimpio)}</span>
+      </h3>
+      <div class="order-info-grid">
+        <div><strong>Mesa:</strong> ${escapeHtml(order.mesa || "Sin mesa")}</div>
+        <div><strong>Cliente:</strong> ${escapeHtml(order.nombre_cliente || "Sin referencia")}</div>
+        <div><strong>Fecha:</strong> ${new Date(order.fecha_hora).toLocaleString("es-EC")}</div>
+        <div>${paidLabel}</div>
+      </div>
+      ${order.observacion ? `<p><strong>Observacion:</strong> ${escapeHtml(order.observacion)}</p>` : ""}
+      <ul aria-label="Detalle de productos">
+        ${order.items.map((item) => `
+          <li>
+            <strong>${item.cantidad}x</strong> ${escapeHtml(item.nombre)}
+            ${item.observacion_item ? `<small>${escapeHtml(item.observacion_item)}</small>` : ""}
+            <span>${money(item.subtotal)}</span>
+          </li>
+        `).join("")}
+      </ul>
+      <div class="order-total-block">
+        <span>Total</span>
+        <strong>${money(order.total)}</strong>
+      </div>
+      ${order.estado === "pendiente" ? `
+        <a class="secondary-action order-edit-link" href="/menu/?editar=${encodeURIComponent(order.codigo)}">
+          Modificar pedido pendiente
+        </a>
+      ` : ""}
+    </article>
+  `;
 }
 
 async function renderOrders() {
-  const products = await cargarProductos();
-  productMap = new Map(products.map((product) => [product.id, product]));
-
-  const orders = readOrders();
-
+  const orders = await loadKnownOrders();
   if (orders.length === 0) {
     ordersList.innerHTML = `<p class="status-message">Aun no hay pedidos registrados en este navegador.</p>`;
     return;
   }
 
-  ordersList.innerHTML = orders.map((order) => {
-    const estadoLimpio = order.estado.replaceAll("_", " ");
-    const estadoClase = order.estado.toLowerCase();
-
-    return `
-      <article class="order-summary">
-        <h3>
-          <span>Código: ${order.codigo}</span>
-          <span class="order-status-pill ${estadoClase}">${estadoLimpio}</span>
-        </h3>
-        <div class="order-info-grid">
-          <div><strong>Mesa:</strong> ${order.mesa || "Sin mesa"}</div>
-          <div><strong>Cliente:</strong> ${order.nombre_cliente || "Sin referencia"}</div>
-          <div style="grid-column: span 2; display: flex; gap: 10px; align-items: center; margin-top: 4px; flex-wrap: wrap;">
-            <span><strong>Fecha:</strong> ${new Date(order.fecha_hora || order.created_at).toLocaleDateString("es-EC")}</span>
-            <span><strong>Hora:</strong> <span class="order-time-tag">${new Date(order.fecha_hora || order.created_at).toLocaleTimeString("es-EC", { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</span></span>
-          </div>
-        </div>
-        ${order.observacion ? `<p style="margin: 8px 0; font-size: 13px;"><strong>Observación:</strong> <em>${order.observacion}</em></p>` : ""}
-        <ul aria-label="Detalle de productos">
-          ${(order.items || []).map((item) => `
-            <li><strong>${item.cantidad}x</strong> ${item.nombre || item.plato} <span style="float: right; color: var(--main-color);">${money(item.subtotal)}</span></li>
-          `).join("")}
-        </ul>
-        <div class="order-total-block">
-          <span>Total Consumido:</span>
-          <strong style="color: var(--main-color); font-size: 18px;">${money(order.total)}</strong>
-        </div>
-      </article>
-    `;
-  }).join("");
+  ordersList.innerHTML = orders
+    .sort((a, b) => new Date(b.fecha_hora) - new Date(a.fecha_hora))
+    .map(renderOrder)
+    .join("");
 }
 
-renderOrders();
+renderOrders().catch((error) => {
+  ordersList.innerHTML = `<p class="status-message error">No se pudo consultar el pedido: ${escapeHtml(error.message)}</p>`;
+});
+
+setInterval(() => renderOrders().catch(() => {}), 10000);

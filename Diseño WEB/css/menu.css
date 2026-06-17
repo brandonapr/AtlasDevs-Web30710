@@ -1183,3 +1183,166 @@ textarea {
   font-size: 13px;
   display: inline-block;
 }
+
+.order-summary ul li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 4px 16px;
+}
+
+.order-summary ul li small {
+  grid-column: 1 / -1;
+  color: var(--gray-muted);
+}
+
+.order-actions,
+.admin-form-actions,
+.admin-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.order-actions .secondary-action,
+.admin-form-actions button {
+  width: auto;
+}
+
+.payment-controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 8px;
+  align-items: end;
+  margin-top: 14px;
+  padding: 14px;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  background: var(--cream-light);
+}
+
+.payment-controls label {
+  grid-column: 1 / -1;
+  font-weight: 700;
+}
+
+.payment-controls select,
+.admin-actions button,
+.admin-form-actions button {
+  padding: 9px 12px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--white);
+}
+
+.danger-action {
+  color: var(--soft-red);
+}
+
+.payment-badge {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--cream-light);
+}
+
+.payment-badge.paid {
+  color: #1c6847;
+  background: #dff5e9;
+}
+
+.order-edit-link {
+  display: inline-block;
+  width: auto;
+  margin-top: 12px;
+  text-decoration: none;
+}
+
+.account-dialog {
+  width: min(620px, calc(100% - 28px));
+  border: 0;
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-lg);
+}
+
+.account-dialog::backdrop {
+  background: rgba(34, 28, 20, 0.62);
+}
+
+.account-dialog-header,
+.account-brand,
+.account-dialog-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.account-brand {
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: 18px;
+}
+
+.account-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 18px 0;
+}
+
+.account-table th,
+.account-table td {
+  padding: 9px;
+  border-bottom: 1px solid var(--border-color);
+  text-align: left;
+}
+
+.account-table th:last-child,
+.account-table td:last-child {
+  text-align: right;
+}
+
+.account-note {
+  color: var(--gray-muted);
+  font-size: 13px;
+}
+
+@media (max-width: 680px) {
+  .private-user-header,
+  .payment-controls {
+    grid-template-columns: 1fr;
+  }
+
+  .private-user-header {
+    align-items: flex-start;
+    gap: 10px;
+    flex-direction: column;
+  }
+
+  .admin-actions {
+    min-width: 220px;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+
+  .account-dialog[open],
+  .account-dialog[open] * {
+    visibility: visible !important;
+  }
+
+  .account-dialog[open] {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    box-shadow: none;
+  }
+
+  .account-dialog-header button,
+  .account-dialog-actions {
+    display: none !important;
+  }
+}

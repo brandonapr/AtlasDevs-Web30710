@@ -49,7 +49,22 @@ Desde la raiz del repositorio:
 ```bash
 npm run check:supabase
 npm run check:supabase -- --auth
+npm run test:mvp
 npm run build:static
 ```
 
 `check:supabase` confirma productos. Con `--auth` confirma los usuarios internos y sus roles.
+
+`test:mvp` crea datos temporales y verifica de punta a punta los ocho requisitos:
+
+1. Ver menu.
+2. Registrar pedido.
+3. Modificar pedido mientras esta pendiente.
+4. Generar cuenta con precios finales.
+5. Actualizar estado segun el rol.
+6. Ver pedidos pendientes.
+7. Registrar pago y cerrar el ticket.
+8. Crear, editar, activar, desactivar y eliminar productos.
+
+El flujo operativo validado es `pendiente -> recibido -> en_preparacion -> listo -> entregado -> cerrado`.
+Para aplicar el backend ejecutar `supabase/mvp-final.sql` en el SQL Editor de Supabase.
