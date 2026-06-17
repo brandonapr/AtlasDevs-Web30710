@@ -15,7 +15,19 @@ function parseEnv(text) {
   );
 }
 
-const env = parseEnv(await readFile(join(root, ".env"), "utf8"));
+let envText = "";
+try {
+  envText = await readFile(join(root, ".env"), "utf8");
+} catch (error) {
+  if (error.code === "ENOENT") {
+    throw new Error(
+      "Falta .env. Crea el archivo local desde .env.example y completa SUPABASE_SECRET_KEY antes de ejecutar test:mvp."
+    );
+  }
+  throw error;
+}
+
+const env = parseEnv(envText);
 const users = JSON.parse(
   await readFile(join(root, "Diseño WEB", "data", "usuarios-prueba.json"), "utf8")
 ).usuarios;

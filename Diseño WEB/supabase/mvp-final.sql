@@ -2,6 +2,7 @@
 -- Idempotente: puede ejecutarse varias veces sin borrar pedidos ni productos.
 
 alter table public.pedidos
+  add column if not exists estado_id text,
   add column if not exists estado_pago text not null default 'pendiente',
   add column if not exists pago_confirmado boolean not null default false,
   add column if not exists fecha_confirmacion_pago timestamptz,
@@ -12,19 +13,44 @@ alter table public.pedidos
 alter table public.pedido_items
   add column if not exists observacion_item text;
 
-update public.estados_pedido set orden_flujo = 7 where estado_id = 'cancelado';
-update public.estados_pedido set orden_flujo = 6 where estado_id = 'cerrado';
+create table if not exists public.estados_pedido (
+  estado_id text primary key,
+  nombre_estado text not null,
+  descripcion text not null default '',
+  orden_flujo integer not null,
+  es_final boolean not null default false,
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
 
 insert into public.estados_pedido (
   estado_id, nombre_estado, descripcion, orden_flujo, es_final
 )
-values ('entregado', 'entregado', 'Pedido entregado a la mesa y pendiente de cobro', 5, false)
+values
+  ('pendiente', 'pendiente', 'Pedido registrado por el comensal y pendiente de confirmacion en caja', 1, false),
+  ('recibido', 'recibido', 'Pedido confirmado por caja y enviado a cocina', 2, false),
+  ('en_preparacion', 'en preparacion', 'Pedido en preparacion por cocina', 3, false),
+  ('listo', 'listo', 'Pedido listo para entrega', 4, false),
+  ('entregado', 'entregado', 'Pedido entregado a la mesa y pendiente de cobro', 5, false),
+  ('cerrado', 'cerrado', 'Pedido cobrado y cerrado', 6, true),
+  ('cancelado', 'cancelado', 'Pedido cancelado', 7, true)
 on conflict (estado_id) do update
 set nombre_estado = excluded.nombre_estado,
     descripcion = excluded.descripcion,
     orden_flujo = excluded.orden_flujo,
     es_final = excluded.es_final,
     updated_at = now();
+
+update public.pedidos
+set estado_id = estado
+where estado_id is null;
+
+alter table public.pedidos drop constraint if exists pedidos_estado_id_fkey;
+alter table public.pedidos
+  add constraint pedidos_estado_id_fkey
+  foreign key (estado_id) references public.estados_pedido(estado_id);
+
+create index if not exists pedidos_estado_id_idx on public.pedidos(estado_id);
 
 alter table public.pedidos drop constraint if exists pedidos_estado_check;
 alter table public.pedidos
