@@ -40,9 +40,19 @@ const products = await request("/rest/v1/productos?select=id,nombre,precio,image
 console.log(`Productos en Supabase: ${products.length}`);
 
 const product02 = products.find((product) => product.id === "02");
-console.log(`Producto 02: ${product02 ? `${product02.nombre} (${product02.imagen})` : "no encontrado"}`);
+console.log(
+  `Producto 02: ${
+    product02 ? `${product02.nombre} - $${Number(product02.precio).toFixed(2)} (${product02.imagen})` : "no encontrado"
+  }`
+);
+
+if (!product02 || Number(product02.precio) !== 1) {
+  throw new Error("El Bolon mixto debe tener precio 1.00 en Supabase.");
+}
 
 if (process.argv.includes("--auth")) {
+  const failures = [];
+
   for (const user of users) {
     const response = await fetch(`${url}/auth/v1/token?grant_type=password`, {
       method: "POST",
@@ -59,6 +69,7 @@ if (process.argv.includes("--auth")) {
     const authData = await response.json();
     if (!response.ok) {
       console.log(`${user.usuario}: no autentica (${authData.error_description || authData.msg || authData.error})`);
+      failures.push(user.usuario);
       continue;
     }
 
@@ -68,6 +79,16 @@ if (process.argv.includes("--auth")) {
       }
     });
     const perfil = perfiles[0];
-    console.log(`${user.usuario}: login ok -> ${perfil?.rol || "sin perfil"}`);
+    if (perfil?.rol !== user.rol) {
+      console.log(`${user.usuario}: perfil incorrecto (${perfil?.rol || "sin perfil"})`);
+      failures.push(user.usuario);
+      continue;
+    }
+
+    console.log(`${user.usuario}: login ok -> ${perfil.rol}`);
+  }
+
+  if (failures.length > 0) {
+    throw new Error(`Fallaron las credenciales o perfiles de: ${failures.join(", ")}.`);
   }
 }

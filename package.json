@@ -12,6 +12,7 @@
     "lint:web": "npm --workspace apps/web run lint",
     "build:static": "node scripts/build-static.mjs",
     "check:supabase": "node scripts/check-supabase.mjs",
+    "setup:supabase-auth": "node scripts/setup-supabase-auth.mjs",
     "test:roles": "node scripts/test-roles.mjs"
   }
 }

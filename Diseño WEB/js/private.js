@@ -336,9 +336,9 @@ function setupAdminForm() {
 
 /* SESIÓN DE LOGIN */
 async function setupLogin() {
-  const [roles, testUsers] = await Promise.all([loadRoles(), loadTestUsers()]);
   const form = document.querySelector("#loginForm");
   const status = document.querySelector("#loginStatus");
+  const loginData = Promise.all([loadRoles(), loadTestUsers()]);
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -346,29 +346,30 @@ async function setupLogin() {
     const usuario = document.querySelector("#usuarioInput").value.trim();
     const password = document.querySelector("#passwordInput").value;
     
-    // Permitir loguear ya sea con el nombre de usuario (ej. Admin, Jhoana) o con el correo Auth
-    const loginUser = testUsers.find(
-      (user) =>
-        normalizeLogin(user.usuario) === normalizeLogin(usuario) ||
-        normalizeLogin(user.email) === normalizeLogin(usuario)
-    );
-
     if (!usuario || !password) {
       status.textContent = "Completa usuario y contraseña.";
       status.className = "status-message error";
       return;
     }
 
-    if (!loginUser) {
-      status.textContent = "Usuario no registrado para este prototipo.";
-      status.className = "status-message error";
-      return;
-    }
-
-    status.textContent = "Validando acceso con Supabase...";
+    status.textContent = "Preparando acceso seguro...";
     status.className = "status-message";
 
     try {
+      const [roles, testUsers] = await loginData;
+      const loginUser = testUsers.find(
+        (user) =>
+          normalizeLogin(user.usuario) === normalizeLogin(usuario) ||
+          normalizeLogin(user.email) === normalizeLogin(usuario)
+      );
+
+      if (!loginUser) {
+        status.textContent = "Usuario no registrado para este prototipo.";
+        status.className = "status-message error";
+        return;
+      }
+
+      status.textContent = "Validando acceso con Supabase...";
       const auth = await iniciarSesion(loginUser.email, password);
       const assignedRole = roles.find((role) => role.id === auth.perfil?.rol);
 
