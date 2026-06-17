@@ -1,0 +1,551 @@
+diff --git "a/Dise\303\261o WEB/admin/index.html" "b/Dise\303\261o WEB/admin/index.html"
+index a031aff..0470b28 100644
+--- "a/Dise\303\261o WEB/admin/index.html"	
++++ "b/Dise\303\261o WEB/admin/index.html"	
+@@ -12,14 +12,18 @@
+ </head>
+ <body data-private-page="admin">
+   <header class="menu-header">
+-    <nav class="public-nav" aria-label="Navegación principal">
+-      <a href="/menu/" id="navMenu">Menú Público</a>
+-      <a href="/login/" class="active" id="navLogin">Portal Equipo</a>
++    <nav class="public-nav" aria-label="Navegacion principal">
++      <a href="/menu/" class="nav-brand" aria-label="Ir al menu principal">
++        <img src="/img/logo-brand.png" alt="Ensaladas del Valle">
++      </a>
++      <div class="nav-links">
++        <a href="/menu/" id="navMenu">Menu Publico</a>
++        <a href="/login/" class="active" id="navLogin">Portal Equipo</a>
++      </div>
+     </nav>
+   </header>
+ 
+   <header class="simple-header">
+-    <img src="/img/logo-brand.png" alt="Logotipo Ensaladas del Valle">
+     <h1>Administración de Menú</h1>
+   </header>
+ 
+diff --git "a/Dise\303\261o WEB/caja/index.html" "b/Dise\303\261o WEB/caja/index.html"
+index 470067d..ee538ad 100644
+--- "a/Dise\303\261o WEB/caja/index.html"	
++++ "b/Dise\303\261o WEB/caja/index.html"	
+@@ -12,14 +12,18 @@
+ </head>
+ <body data-private-page="caja">
+   <header class="menu-header">
+-    <nav class="public-nav" aria-label="Navegación principal">
+-      <a href="/menu/" id="navMenu">Menú Público</a>
+-      <a href="/login/" class="active" id="navLogin">Portal Equipo</a>
++    <nav class="public-nav" aria-label="Navegacion principal">
++      <a href="/menu/" class="nav-brand" aria-label="Ir al menu principal">
++        <img src="/img/logo-brand.png" alt="Ensaladas del Valle">
++      </a>
++      <div class="nav-links">
++        <a href="/menu/" id="navMenu">Menu Publico</a>
++        <a href="/login/" class="active" id="navLogin">Portal Equipo</a>
++      </div>
+     </nav>
+   </header>
+ 
+   <header class="simple-header">
+-    <img src="/img/logo-brand.png" alt="Logotipo Ensaladas del Valle">
+     <h1>Caja y Cobros</h1>
+   </header>
+ 
+diff --git "a/Dise\303\261o WEB/cocina/index.html" "b/Dise\303\261o WEB/cocina/index.html"
+index 778e6fb..bfdde6b 100644
+--- "a/Dise\303\261o WEB/cocina/index.html"	
++++ "b/Dise\303\261o WEB/cocina/index.html"	
+@@ -12,14 +12,18 @@
+ </head>
+ <body data-private-page="cocina">
+   <header class="menu-header">
+-    <nav class="public-nav" aria-label="Navegación principal">
+-      <a href="/menu/" id="navMenu">Menú Público</a>
+-      <a href="/login/" class="active" id="navLogin">Portal Equipo</a>
++    <nav class="public-nav" aria-label="Navegacion principal">
++      <a href="/menu/" class="nav-brand" aria-label="Ir al menu principal">
++        <img src="/img/logo-brand.png" alt="Ensaladas del Valle">
++      </a>
++      <div class="nav-links">
++        <a href="/menu/" id="navMenu">Menu Publico</a>
++        <a href="/login/" class="active" id="navLogin">Portal Equipo</a>
++      </div>
+     </nav>
+   </header>
+ 
+   <header class="simple-header">
+-    <img src="/img/logo-brand.png" alt="Logotipo Ensaladas del Valle">
+     <h1>Cocina y Producción</h1>
+   </header>
+ 
+diff --git "a/Dise\303\261o WEB/css/menu.css" "b/Dise\303\261o WEB/css/menu.css"
+index 4f387d3..0fbe333 100644
+--- "a/Dise\303\261o WEB/css/menu.css"	
++++ "b/Dise\303\261o WEB/css/menu.css"	
+@@ -5,11 +5,13 @@
+   --main-color: #5A3A24;       /* Color principal: Marrón café elegante */
+   --support-green: #3F5F3A;    /* Verde de apoyo: Ensalada fresco */
+   --support-green-hover: #324c2e;
+-  --yellow-accent: #E8C75A;    /* Amarillo/acento: Mostaza/miel suave */
+-  --yellow-accent-light: #fbf5df;
++  --yellow-accent: #FFD85A;    /* Amarillo principal de la barra superior */
++  --yellow-accent-light: #FFF2B8;
++  --nav-yellow: #FFE070;
++  --nav-yellow-strong: #FFD24D;
+   --soft-red: #B84A4A;         /* Rojo suave para alertas y cancelaciones */
+   --soft-red-hover: #9e3d3d;
+-  --light-bg: #FFF8EC;         /* Fondo claro y cálido */
++  --light-bg: #FFFDF8;         /* Fondo claro y calido */
+   --dark-text: #2B2118;        /* Texto oscuro con excelente contraste */
+   
+   /* Tonos neutros adicionales */
+@@ -17,7 +19,7 @@
+   --cream-dark: #E2D3BE;
+   --white: #FFFFFF;
+   --gray-muted: #7A6A5C;
+-  --border-color: #E2D3BE;
++  --border-color: #E7D8C3;
+   
+   /* Sombras y efectos */
+   --shadow-sm: 0 4px 6px -1px rgba(90, 58, 36, 0.04), 0 2px 4px -1px rgba(90, 58, 36, 0.02);
+@@ -45,9 +47,9 @@ html {
+ 
+ body {
+   font-family: var(--font-sans);
+-  background: 
+-    radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.95), transparent 30%),
+-    linear-gradient(180deg, #FFFDF9 0%, var(--light-bg) 100%);
++  background:
++    radial-gradient(circle at 12% 8%, rgba(255, 240, 164, 0.28), transparent 28%),
++    linear-gradient(180deg, #FFFFFF 0%, var(--light-bg) 100%);
+   color: var(--dark-text);
+   min-height: 100vh;
+   line-height: 1.6;
+@@ -66,63 +68,94 @@ textarea {
+   color: inherit;
+ }
+ 
+-/* --- HEADER Y NAVEGACIÓN --- */
++/* --- HEADER Y NAVEGACION --- */
+ .menu-header {
+-  border-bottom: 1px solid var(--border-color);
+-  background-color: var(--white);
+-  box-shadow: var(--shadow-sm);
++  background: transparent;
++  border: 0;
++  box-shadow: none;
+ }
+ 
+ .public-nav {
+   position: sticky;
+   top: 0;
+   z-index: 100;
++  min-height: 78px;
+   display: flex;
+-  justify-content: center;
+-  gap: 40px;
+-  padding: 16px 20px;
+-  background: rgba(255, 255, 255, 0.92);
+-  backdrop-filter: blur(10px);
+-  -webkit-backdrop-filter: blur(10px);
+-  border-bottom: 1px solid var(--border-color);
++  align-items: center;
++  gap: 28px;
++  padding: 10px clamp(22px, 5vw, 56px);
++  background: linear-gradient(90deg, var(--nav-yellow-strong) 0%, var(--nav-yellow) 48%, #FFEFA8 100%);
++  border-bottom: 1px solid rgba(90, 58, 36, 0.10);
++  box-shadow: 0 10px 28px rgba(90, 58, 36, 0.12);
++}
++
++.nav-brand {
++  flex: 0 0 auto;
++  padding: 0 !important;
++  background: transparent !important;
++  border: 0 !important;
++  box-shadow: none !important;
++  line-height: 0;
++}
++
++.nav-brand img {
++  display: block;
++  width: clamp(118px, 12vw, 165px);
++  max-height: 56px;
++  object-fit: contain;
++  mix-blend-mode: multiply;
++  filter: drop-shadow(0 4px 8px rgba(90, 58, 36, 0.08));
++}
++
++.nav-links {
++  display: flex;
++  align-items: center;
++  gap: 10px;
+ }
+ 
+ .public-nav a,
+ .back-link {
+-  color: var(--gray-muted);
++  min-height: 40px;
++  color: var(--dark-text);
+   text-decoration: none;
+-  font-weight: 700;
++  font-weight: 800;
+   font-size: 15px;
+-  padding: 6px 12px;
+-  border-radius: 20px;
++  padding: 8px 18px;
++  border: 1px solid transparent;
++  border-radius: 14px;
+   transition: all 0.25s ease;
+   display: inline-flex;
+   align-items: center;
++  justify-content: center;
+ }
+ 
+-.public-nav a:hover,
+-.public-nav .active,
++.public-nav a:hover:not(.nav-brand),
++.public-nav .active:not(.nav-brand),
+ .back-link:hover {
+   color: var(--main-color);
+-  background-color: var(--cream-light);
++  background-color: rgba(255, 255, 255, 0.72);
++  border-color: rgba(90, 58, 36, 0.10);
++  box-shadow: 0 8px 22px rgba(90, 58, 36, 0.08);
+ }
+ 
+-.brand-wrap {
+-  display: flex;
+-  justify-content: center;
+-  padding: 20px 20px 10px;
++.nav-access {
++  margin-left: auto;
++  gap: 8px;
+ }
+ 
+-.brand-logo {
+-  width: min(340px, 80vw);
+-  height: auto;
+-  display: block;
+-  mix-blend-mode: multiply;
+-  filter: drop-shadow(0 4px 6px rgba(90, 58, 36, 0.04));
+-  transition: transform 0.3s ease;
++.nav-access::before {
++  content: "";
++  width: 18px;
++  height: 18px;
++  display: inline-block;
++  background: currentColor;
++  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21a8 8 0 0 0-16 0'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E") center / contain no-repeat;
++  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 21a8 8 0 0 0-16 0'/%3E%3Ccircle cx='12' cy='7' r='4'/%3E%3C/svg%3E") center / contain no-repeat;
+ }
+-.brand-logo:hover {
+-  transform: scale(1.02);
++
++.brand-wrap,
++.brand-logo {
++  display: none;
+ }
+ 
+ /* --- HERO SECTION --- */
+@@ -133,7 +166,7 @@ textarea {
+   grid-template-columns: 1fr 1fr;
+   gap: 40px;
+   align-items: center;
+-  padding: 30px 0 50px;
++  padding: 54px 0 52px;
+ }
+ 
+ .hero-copy {
+@@ -219,7 +252,7 @@ textarea {
+ /* --- CONTROLES Y BUSCADOR --- */
+ .toolbar {
+   position: sticky;
+-  top: 75px;
++  top: 96px;
+   z-index: 80;
+   padding: 20px;
+   background: rgba(255, 255, 255, 0.9);
+@@ -306,8 +339,8 @@ textarea {
+ /* --- GRID DE PRODUCTOS --- */
+ .products-grid {
+   display: grid;
+-  grid-template-columns: repeat(2, 1fr);
+-  gap: 20px;
++  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
++  gap: 22px;
+ }
+ 
+ .product-card {
+@@ -329,7 +362,7 @@ textarea {
+ .product-media {
+   position: relative;
+   margin: 0;
+-  aspect-ratio: 16 / 10;
++  aspect-ratio: 1 / 0.78;
+   overflow: hidden;
+   background: var(--cream-light);
+ }
+@@ -381,7 +414,7 @@ textarea {
+ }
+ 
+ .product-body {
+-  padding: 18px;
++  padding: 14px;
+   display: flex;
+   flex: 1;
+   flex-direction: column;
+@@ -407,16 +440,16 @@ textarea {
+   margin: 0 0 8px;
+   color: var(--main-color);
+   font-family: var(--font-serif);
+-  font-size: 21px;
++  font-size: 15px;
+   font-weight: 700;
+   line-height: 1.25;
+ }
+ 
+ .product-card p {
+-  margin: 0 0 16px;
++  margin: 0 0 12px;
+   color: var(--gray-muted);
+-  font-size: 14px;
+-  line-height: 1.5;
++  font-size: 13px;
++  line-height: 1.45;
+   flex-grow: 1;
+ }
+ 
+@@ -449,7 +482,7 @@ textarea {
+ 
+ .price {
+   color: var(--main-color);
+-  font-size: 22px;
++  font-size: 18px;
+   font-weight: 800;
+   font-family: var(--font-serif);
+ }
+@@ -546,8 +579,8 @@ textarea {
+ /* --- PANEL DE CARRITO --- */
+ .cart-panel {
+   position: sticky;
+-  top: 75px;
+-  max-height: calc(100vh - 95px);
++  top: 96px;
++  max-height: calc(100vh - 118px);
+   display: flex;
+   flex-direction: column;
+   background: var(--white);
+@@ -832,34 +865,37 @@ textarea {
+   transform: scale(0.96);
+ }
+ 
+-/* --- PÁGINA SIMPLE (LOGIN, HISTORIAL) --- */
++/* --- PAGINA SIMPLE (LOGIN, HISTORIAL Y DASHBOARDS) --- */
+ .simple-header {
+-  width: min(800px, 94%);
++  width: min(1120px, 94%);
+   margin: 0 auto;
+-  padding: 40px 0 20px;
+-  text-align: center;
++  padding: 38px 0 20px;
++  text-align: left;
+ }
+ 
+ .simple-header img {
+-  width: 200px;
+-  margin-bottom: 20px;
+-  mix-blend-mode: multiply;
+-  filter: drop-shadow(0 4px 6px rgba(90, 58, 36, 0.04));
++  display: none;
+ }
+ 
+ .simple-header h1 {
+   color: var(--main-color);
+   font-family: var(--font-serif);
+-  font-size: 32px;
++  font-size: clamp(28px, 4vw, 42px);
+   font-weight: 800;
++  line-height: 1.1;
+ }
+ 
+ .order-history,
+ .private-shell {
+-  width: min(800px, 94%);
++  width: min(1120px, 94%);
+   margin: 0 auto 80px;
+ }
+ 
++body[data-private-page="login"] .simple-header,
++body[data-private-page="login"] .private-shell {
++  width: min(520px, 94%);
++}
++
+ .order-card,
+ .private-card,
+ .private-panel {
+@@ -1003,8 +1039,8 @@ textarea {
+   display: flex;
+   justify-content: space-between;
+   align-items: center;
+-  background: var(--main-color);
+-  color: var(--white);
++  background: linear-gradient(135deg, #ffffff, var(--yellow-accent-light));
++  color: var(--main-color);
+   padding: 12px 24px;
+   border-radius: var(--radius-sm);
+   margin-bottom: 24px;
+@@ -1037,6 +1073,19 @@ textarea {
+   color: var(--main-color);
+ }
+ 
++
++.private-user-header {
++  background: linear-gradient(135deg, #ffffff, var(--yellow-accent-light));
++  color: var(--main-color);
++  border: 1px solid rgba(90, 58, 36, 0.10);
++}
++
++.private-user-header button {
++  background: var(--main-color);
++  color: var(--white);
++  border-color: var(--main-color);
++}
++
+ /* --- LOGIN SCREEN CARD --- */
+ .private-card h2 {
+   font-family: var(--font-serif);
+@@ -1158,8 +1207,20 @@ textarea {
+   }
+   
+   .public-nav {
++    min-height: auto;
+     gap: 10px;
+-    justify-content: space-around;
++    flex-wrap: wrap;
++    justify-content: center;
++    padding: 10px 14px 12px;
++  }
++
++  .nav-brand {
++    width: 100%;
++    justify-content: center;
++  }
++
++  .nav-access {
++    margin-left: 0;
+   }
+   
+   .public-nav a {
+diff --git "a/Dise\303\261o WEB/login/index.html" "b/Dise\303\261o WEB/login/index.html"
+index 53b428a..5f36c44 100644
+--- "a/Dise\303\261o WEB/login/index.html"	
++++ "b/Dise\303\261o WEB/login/index.html"	
+@@ -11,8 +11,20 @@
+   <link rel="stylesheet" href="/css/menu.css">
+ </head>
+ <body data-private-page="login">
++  <header class="menu-header">
++    <nav class="public-nav" aria-label="Navegacion principal">
++      <a href="/menu/" class="nav-brand" aria-label="Ir al menu principal">
++        <img src="/img/logo-brand.png" alt="Ensaladas del Valle">
++      </a>
++      <div class="nav-links">
++        <a href="/menu/" id="navMenu">Menu</a>
++        <a href="/orden/" id="navOrden">Mi orden</a>
++      </div>
++      <a href="/login/" class="nav-access active" id="navLogin">Acceso Equipo</a>
++    </nav>
++  </header>
++
+   <header class="simple-header">
+-    <img src="/img/logo-brand.png" alt="Logotipo Ensaladas del Valle">
+     <h1>Portal de Equipo</h1>
+   </header>
+ 
+diff --git "a/Dise\303\261o WEB/menu/index.html" "b/Dise\303\261o WEB/menu/index.html"
+index 0f46c36..cf8b9f6 100644
+--- "a/Dise\303\261o WEB/menu/index.html"	
++++ "b/Dise\303\261o WEB/menu/index.html"	
+@@ -13,16 +13,17 @@
+ </head>
+ <body data-page="menu">
+   <header class="menu-header">
+-    <nav class="public-nav" aria-label="Navegación principal">
+-      <a href="/menu/" class="active" id="navMenu">Menú</a>
+-      <a href="/orden/" id="navOrden">Mi orden</a>
+-      <a href="/login/" id="navLogin" style="margin-left: auto;">Acceso Equipo</a>
++    <nav class="public-nav" aria-label="Navegacion principal">
++      <a href="/menu/" class="nav-brand" aria-label="Ir al menu principal">
++        <img src="/img/logo-brand.png" alt="Ensaladas del Valle">
++      </a>
++      <div class="nav-links">
++        <a href="/menu/" class="active" id="navMenu">Menu</a>
++        <a href="/orden/" id="navOrden">Mi orden</a>
++      </div>
++      <a href="/login/" class="nav-access" id="navLogin">Acceso Equipo</a>
+     </nav>
+ 
+-    <div class="brand-wrap">
+-      <img src="/img/logo-brand.png" alt="Logotipo Ensaladas del Valle" class="brand-logo">
+-    </div>
+-
+     <section class="hero-menu" aria-labelledby="heroTitle">
+       <div class="hero-copy">
+         <span class="eyebrow">Carta digital</span>
+diff --git "a/Dise\303\261o WEB/mesera/index.html" "b/Dise\303\261o WEB/mesera/index.html"
+index 924b9e6..0053999 100644
+--- "a/Dise\303\261o WEB/mesera/index.html"	
++++ "b/Dise\303\261o WEB/mesera/index.html"	
+@@ -12,14 +12,18 @@
+ </head>
+ <body data-private-page="mesera">
+   <header class="menu-header">
+-    <nav class="public-nav" aria-label="Navegación principal">
+-      <a href="/menu/" id="navMenu">Menú Público</a>
+-      <a href="/login/" class="active" id="navLogin">Portal Equipo</a>
++    <nav class="public-nav" aria-label="Navegacion principal">
++      <a href="/menu/" class="nav-brand" aria-label="Ir al menu principal">
++        <img src="/img/logo-brand.png" alt="Ensaladas del Valle">
++      </a>
++      <div class="nav-links">
++        <a href="/menu/" id="navMenu">Menu Publico</a>
++        <a href="/login/" class="active" id="navLogin">Portal Equipo</a>
++      </div>
+     </nav>
+   </header>
+ 
+   <header class="simple-header">
+-    <img src="/img/logo-brand.png" alt="Logotipo Ensaladas del Valle">
+     <h1>Servicio de Mesas</h1>
+   </header>
+ 
+diff --git "a/Dise\303\261o WEB/orden/index.html" "b/Dise\303\261o WEB/orden/index.html"
+index e7f0f1d..b3999c9 100644
+--- "a/Dise\303\261o WEB/orden/index.html"	
++++ "b/Dise\303\261o WEB/orden/index.html"	
+@@ -12,15 +12,19 @@
+ </head>
+ <body data-page="orden">
+   <header class="menu-header">
+-    <nav class="public-nav" aria-label="Navegación principal">
+-      <a href="/menu/" id="navMenu">Menú</a>
+-      <a href="/orden/" class="active" id="navOrden">Mi orden</a>
+-      <a href="/login/" id="navLogin" style="margin-left: auto;">Acceso Equipo</a>
++    <nav class="public-nav" aria-label="Navegacion principal">
++      <a href="/menu/" class="nav-brand" aria-label="Ir al menu principal">
++        <img src="/img/logo-brand.png" alt="Ensaladas del Valle">
++      </a>
++      <div class="nav-links">
++        <a href="/menu/" id="navMenu">Menu</a>
++        <a href="/orden/" class="active" id="navOrden">Mi orden</a>
++      </div>
++      <a href="/login/" class="nav-access" id="navLogin">Acceso Equipo</a>
+     </nav>
+   </header>
+ 
+   <header class="simple-header">
+-    <img src="/img/logo-brand.png" alt="Logotipo Ensaladas del Valle">
+     <h1>Estado de mi pedido</h1>
+   </header>
+ 

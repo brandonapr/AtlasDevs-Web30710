@@ -13,15 +13,16 @@
 </head>
 <body data-page="menu">
   <header class="menu-header">
-    <nav class="public-nav" aria-label="Navegación principal">
-      <a href="/menu/" class="active" id="navMenu">Menú</a>
-      <a href="/orden/" id="navOrden">Mi orden</a>
-      <a href="/login/" id="navLogin" style="margin-left: auto;">Acceso Equipo</a>
+    <nav class="public-nav" aria-label="Navegacion principal">
+      <a href="/menu/" class="nav-brand" aria-label="Ir al menu principal">
+        <img src="/img/logo-brand.png" alt="Ensaladas del Valle">
+      </a>
+      <div class="nav-links">
+        <a href="/menu/" class="active" id="navMenu">Menu</a>
+        <a href="/orden/" id="navOrden">Mi orden</a>
+      </div>
+      <a href="/login/" class="nav-access" id="navLogin">Acceso Equipo</a>
     </nav>
-
-    <div class="brand-wrap">
-      <img src="/img/logo-brand.png" alt="Logotipo Ensaladas del Valle" class="brand-logo">
-    </div>
 
     <section class="hero-menu" aria-labelledby="heroTitle">
       <div class="hero-copy">
