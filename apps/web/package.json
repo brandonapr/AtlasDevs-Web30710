@@ -7,5 +7,8 @@
     "dev": "echo dev pendiente",
     "build": "node --check ../../registro_pedidos/js/script.js && node --check ../../registro_pedidos/js/resumen.js",
     "lint": "echo lint pendiente"
+  },
+  "devDependencies": {
+    "vite": "^5.4.11"
   }
 }
