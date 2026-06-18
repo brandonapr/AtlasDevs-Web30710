@@ -16,6 +16,20 @@ ____
 - Build estatico para Render: `npm run build:static`.
 - Verificacion Supabase: `npm run check:supabase`.
 
+## Lectura rapida del repositorio
+1. `README.md`: contexto general del proyecto.
+2. `Diseño WEB/README.md`: rutas, usuarios de prueba y flujo tecnico del prototipo.
+3. `docs/README.md`: indice de evidencias de planificacion y seguimiento.
+4. `scripts/README.md`: comandos de build, pruebas y verificacion.
+5. `render.yaml`: configuracion del despliegue en Render.
+
+## Estado tecnico resumido
+- Frontend activo: HTML, CSS y JavaScript puro.
+- Backend administrado: Supabase.
+- Despliegue: Render Static Site.
+- Gestion: Jira y GitHub.
+- Evidencias: documentacion en `docs/`, scripts de prueba y commits versionados.
+
 ## Orden recomendado de trabajo
 1. Revisar [distribucion y ejecucion](./docs/planificacion/distribucion-y-ejecucion.md).
 2. Confirmar [colaboradores y asignaciones](./docs/planificacion/colaboradores-y-asignaciones.md).

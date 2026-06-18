@@ -13,6 +13,18 @@ Interfaz HTML, CSS y JavaScript puro para el menu digital de Ensaladas del Valle
 - `/cocina/`: cola de produccion.
 - `/mesera/`: pedidos listos para entregar.
 
+## Responsabilidad por vista
+
+| Vista | Responsable funcional | Uso principal |
+| --- | --- | --- |
+| Menu | Comensal | Consultar productos y registrar pedido. |
+| Orden | Comensal | Revisar confirmacion o consumo reciente. |
+| Login | Equipo interno | Entrar con usuario de prueba y rol. |
+| Admin | Administradora | Gestionar productos y disponibilidad. |
+| Caja | Caja / Jhoana | Confirmar pedidos, generar cuenta y registrar pago. |
+| Cocina | Cocinero | Preparar pedidos y marcar listos. |
+| Mesera | Mesera | Confirmar entrega del pedido. |
+
 ## Datos
 
 - Productos base: `data/productos.json`.
@@ -39,8 +51,9 @@ Estas claves son solo para pruebas. Antes de publicar un entorno real, deben cam
 
 1. Ejecutar `supabase/schema.sql`.
 2. Ejecutar `supabase/seed.sql`.
-3. Crear usuarios en Supabase Authentication.
-4. Ejecutar `supabase/roles-y-usuarios.sql`.
+3. Crear usuarios en Supabase Authentication o ejecutar `npm run setup:supabase-auth`.
+4. Ejecutar `supabase/roles-y-usuarios.sql` si los usuarios se crearon manualmente.
+5. Ejecutar `supabase/mvp-final.sql` para funciones RPC, estados y pago.
 
 ## Verificacion local
 
