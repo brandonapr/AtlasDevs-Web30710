@@ -23,3 +23,18 @@ Ese archivo no debe subirse al repositorio.
 ## Notas de Windows
 
 Si PowerShell bloquea `npm` por politica de ejecucion, usar `npm.cmd run ...`.
+
+## Flujo recomendado de validacion local
+
+1. Ejecutar `npm.cmd run build:static`.
+2. Ejecutar `npm.cmd run test:roles`.
+3. Ejecutar `npm.cmd run check:supabase`.
+4. Ejecutar `npm.cmd run check:supabase -- --auth`.
+5. Ejecutar `npm.cmd run test:mvp` solo si `.env` tiene la clave secreta.
+
+## Archivos generados
+
+- `dist/`: salida del build estatico.
+- `output/` y `tmp/`: carpetas locales de trabajo o evidencias temporales.
+
+Estas carpetas estan ignoradas por Git para evitar subir artefactos generados.

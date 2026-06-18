@@ -50,3 +50,11 @@ Lista de apoyo para preparar la sustentacion y comprobar que el proyecto cuenta 
 - [ ] Guia de Supabase revisada.
 - [ ] Guia de pruebas revisada.
 - [ ] Evidencias de participacion por integrante preparadas.
+
+## Revision final antes de presentar
+
+- [ ] Confirmar que la rama `main` en GitHub contiene los ultimos commits.
+- [ ] Confirmar que Render muestra estado `Deployed`.
+- [ ] Confirmar que Jira muestra tareas en Backlog o Timeline.
+- [ ] Confirmar que las capturas estan guardadas y listas para mostrar.
+- [ ] Confirmar que cada integrante sabe que parte va a explicar.
