@@ -19,7 +19,15 @@ Esta carpeta concentra las evidencias de planificacion, diseno, seguimiento y co
 - Sprint de menu y pedidos: `planificacion/sprint-01.md`.
 - Plan Scrum retrospectivo: `planificacion/plan-scrum-retrospectivo-rf01-rf02.md`.
 - Estado de login y requisitos: `estado/INFORME_ESTADO_LOGIN_REQUISITOS_2026-06-17.md`.
+- Checklist de evidencias finales: `estado/checklist-evidencias-finales.md`.
 - Insumos de Jira: `jira/`.
+
+## Orden sugerido para revisar evidencias
+1. Revisar `planificacion/` para entender el proceso.
+2. Revisar `jira/` para relacionar backlog y tareas.
+3. Revisar `estado/` para ver el corte tecnico y pendientes.
+4. Revisar `actas/` para soportar acuerdos y validaciones.
+5. Revisar el prototipo en `../Diseño WEB/` para comprobar el producto.
 
 ## Regla de organizacion
 

@@ -16,3 +16,14 @@ Archivos de apoyo para registrar backlog, sprints y sesiones en Jira.
 2. Crear primero epicas o sprint si Jira lo requiere.
 3. Asignar fechas para que las tareas aparezcan en Timeline.
 4. Adjuntar capturas de Jira, Render, GitHub y Supabase como evidencia.
+
+## Relacion con la sustentacion
+
+Los archivos de esta carpeta sirven para demostrar seguimiento del proyecto:
+
+- Backlog planificado.
+- Actividades por sprint.
+- Sesiones de verificacion.
+- Evidencia de commits, Render y pendientes tecnicos.
+
+Para el Timeline de Jira, cada actividad debe tener fecha de inicio o vencimiento.
